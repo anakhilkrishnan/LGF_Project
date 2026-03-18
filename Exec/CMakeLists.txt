@@ -32,7 +32,7 @@ else()
 
 endif()
 
-setup_target_for_cuda_compilation(lgfpoisson)
+#setup_target_for_cuda_compilation(lgfpoisson)
 
 target_link_libraries(lgfpoisson PRIVATE AMReX::amrex)
 

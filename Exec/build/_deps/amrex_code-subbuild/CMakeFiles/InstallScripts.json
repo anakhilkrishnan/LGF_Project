@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/dragvangg/AllWork/Coding/CFD ME 282/LGF Project/Exec/build/_deps/amrex_code-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
