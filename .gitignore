@@ -1,16 +1,3 @@
-# Ignore all binaries and object files
-*.o
-*.out
-*.exe
-
-# Ignore everything in Exec except the Results subdirectory
-Exec/*
-!Exec/Results/
-
-# Ignore all files inside Results (to keep the repo light)
-Exec/Results/*
-!Exec/Results/.gitkeep
-
 # Ignore IDE specific files
 .vscode/
 .idea/
