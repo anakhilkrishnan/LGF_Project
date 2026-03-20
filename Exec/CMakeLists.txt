@@ -3,11 +3,6 @@ cmake_minimum_required(VERSION 3.16)
 project(LGF_Project
         LANGUAGES C CXX CUDA)
 
-add_executable(lgfpoisson
-                ../Src/main.cpp)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
 if(NOT DEFINED AMReX_ROOT)
   message("-- Download and configure AMReX from GitHub")
 
@@ -32,8 +27,20 @@ else()
 
 endif()
 
+add_executable(lgfpoisson
+                ../Src/main.cpp
+                ../Src/createMultiFab.cpp
+                ../Src/initializeMultiFab.cpp
+                ../Src/addEveryBox.cpp
+                ../Src/MyFunctions.H)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+
+
 #setup_target_for_cuda_compilation(lgfpoisson)
 
+target_include_directories(lgfpoisson PRIVATE ../Src)
 target_link_libraries(lgfpoisson PRIVATE AMReX::amrex)
 
 target_compile_definitions(lgfpoisson PRIVATE REL_RESULTS_DIR="Results/")
