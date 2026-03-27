@@ -60,4 +60,9 @@ void extendedMain()
     std::string plotfile_name = dir_name + "/plt00000";
     WriteSingleLevelPlotfile(plotfile_name, resultFab.mf, {"phi"}, resultFab.geom, 0.0, 0);
     amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
+
+    // marking end time and elapsed time
+    auto end_time = amrex::second();
+    auto elapsed_time = end_time - start_time;
+    amrex::Print() << "Time taken for computation: " << elapsed_time << "\n";
 }
