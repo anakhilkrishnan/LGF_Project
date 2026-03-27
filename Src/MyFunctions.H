@@ -12,6 +12,12 @@ struct MeshData {
     amrex::Geometry geom;
 };
 
+struct SourceBlock {
+    amrex::Array4<const amrex::Real> data; 
+    amrex::IntVect lo;
+    amrex::IntVect hi;
+};
+
 using namespace amrex;
 
 void test_print();
@@ -19,6 +25,6 @@ void extendedMain();
 
 MeshData createMultiFab(int n_cell, int max_grid_size, int n_ghost, int n_comp);
 void initializeMultiFab(MultiFab& phi);
-void addEveryBox(const MultiFab& source, const MultiFab& target, MultiFab& result);
+void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab& result);
 
 #endif
