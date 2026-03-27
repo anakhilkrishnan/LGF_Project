@@ -31,7 +31,7 @@ add_executable(lgfpoisson
                 ../Src/main.cpp
                 ../Src/createMultiFab.cpp
                 ../Src/initializeMultiFab.cpp
-                ../Src/addEveryBox.cpp
+                ../Src/addEverySourceBox.cpp
                 ../Src/MyFunctions.H)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

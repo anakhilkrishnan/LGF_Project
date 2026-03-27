@@ -4,3 +4,4 @@
 
 # Ignore any folder starting with 'build' inside the Exec directory
 Exec/build*/
+Exec/Build*/

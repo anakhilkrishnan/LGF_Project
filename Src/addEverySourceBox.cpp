@@ -22,7 +22,7 @@ void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab&
     // Transfer source data to the GPU. In case USE_OMP = TRUE, it falls back to
     // the typical CPU setup
     amrex::Gpu::DeviceVector<SourceBlock> gpu_full_source_data;
-    gpu_full_source_data.assign(full_source_data.begin(), full_source_data.end());
+    gpu_full_source_data.assign(full_source_data.data(), full_source_data.data() + full_source_data.size());
 
     // Obtain pointers for kernels to be used inside ParallelFor
     const SourceBlock* src_lib_ptr = gpu_full_source_data.data();
