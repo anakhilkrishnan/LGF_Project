@@ -12,11 +12,11 @@ void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab&
     // Export the source data to a single big SourceBlock
     amrex::Vector<SourceBlock> full_source_data;
 
-    for (amrex::MFIter mfi(rho_mf); mfi.isValid(); ++mfi) 
+    for (amrex::MFIter mfi(source); mfi.isValid(); ++mfi) 
     {
         const auto& bx = mfi.validbox();
         // Logic for checking whether this source is to be taken or not goes here
-        full_source_data.push_back({rho_mf.array(mfi), bx.smallEnd(), bx.bigEnd()});
+        full_source_data.push_back({source.array(mfi), bx.smallEnd(), bx.bigEnd()});
     }
 
     // Transfer source data to the GPU. In case USE_OMP = TRUE, it falls back to
@@ -32,7 +32,7 @@ void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab&
     for (amrex::MFIter mfi(target); mfi.isValid(); ++mfi)
     {
         const amrex::Box& targetbox = mfi.validbox();
-        const Array4<Real>& phi = target.array(mfi);
+        const Array4<Real>& phi = result.array(mfi);
 
         amrex::ParallelFor(targetbox, [=] AMREX_GPU_DEVICE (int i, int j, int k)
         {   
