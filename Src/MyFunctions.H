@@ -7,15 +7,23 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_Geometry.H>
 
-struct MeshData {
+struct MeshData 
+{
     amrex::MultiFab mf;
     amrex::Geometry geom;
 };
 
-struct SourceBlock {
-    amrex::Array4<const amrex::Real> data; 
+struct FabMetaData
+{
+    int offset;
     amrex::IntVect lo;
     amrex::IntVect hi;
+};
+
+struct ConsolidatedData 
+{
+    amrex::Vector<amrex::Real> data;
+    amrex::Vector<FabMetaData> metadata;
 };
 
 using namespace amrex;
@@ -25,6 +33,7 @@ void extendedMain();
 
 MeshData createMultiFab(int n_cell, int max_grid_size, int n_ghost, int n_comp);
 void initializeMultiFab(MultiFab& phi);
+ConsolidatedData consolidateMultiFab(const MultiFab& phifab);
 void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab& result);
 
 #endif

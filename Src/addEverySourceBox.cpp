@@ -9,25 +9,17 @@ void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab&
     // Initialize the result MultiFab for += operations
     result.setVal(0.0);
 
-    // Export the source data to a single big SourceBlock
-    amrex::Vector<SourceBlock> full_source_data;
+    // Read data from the source MultiFab and make it available to all processes
+    ConsolidatedData consolSource = consolidateMultiFab(source);
+    
+    // Further work: Exporting data for computations on GPU
+    // ConsolidatedDataToGPUPointers();
 
-    for (amrex::MFIter mfi(source); mfi.isValid(); ++mfi) 
-    {
-        const auto& bx = mfi.validbox();
-        // Logic for checking whether this source is to be taken or not goes here
-        full_source_data.push_back({source.array(mfi), bx.smallEnd(), bx.bigEnd()});
-    }
-
-    // Transfer source data to the GPU. In case USE_OMP = TRUE, it falls back to
-    // the typical CPU setup
-    amrex::Gpu::DeviceVector<SourceBlock> gpu_full_source_data;
-    gpu_full_source_data.assign(full_source_data.data(), full_source_data.data() + full_source_data.size());
-
-    // Obtain pointers for kernels to be used inside ParallelFor
-    const SourceBlock* src_lib_ptr = gpu_full_source_data.data();
-    int num_blocks = gpu_full_source_data.size();
-
+    // Export the consolidated data as pointers to the target MFIter
+    int num_blocks = consolSource.metadata.size();
+    const Real* data_ptr = consolSource.data.data();
+    const FabMetaData* meta_ptr = consolSource.metadata.data();
+    
     // Loop over target boxes in a separate MFIter
     for (amrex::MFIter mfi(target); mfi.isValid(); ++mfi)
     {
@@ -38,19 +30,21 @@ void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab&
         {   
             amrex::Real total_contribution = 0.0;
 
-            // Iterate over every block in gpu_full_source_data
+            // Iterate over every source block gathered from all MPI processes
             for (int b = 0; b < num_blocks; ++b) 
             {
-                auto const& block = src_lib_ptr[b];
-                auto const& src_val = block.data;
-
-                // Iterate over every cell in the block
-                for (int sj = block.lo[1]; sj <= block.hi[1]; ++sj) 
+                const auto& block = meta_ptr[b];
+                int idx = block.offset;
+                
+                // Unpack and sum every cell in the source block
+                for (int sk = AMREX_D_PICK(0, 0, block.lo[2]); sk <= AMREX_D_PICK(0, 0, block.hi[2]); ++sk) 
                 {
-                    for (int si = block.lo[0]; si <= block.hi[0]; ++si) 
+                    for (int sj = AMREX_D_PICK(0, block.lo[1], block.lo[1]); sj <= AMREX_D_PICK(0, block.hi[1], block.hi[1]); ++sj) 
                     {
-                        // Add all the values in each source box
-                        total_contribution += src_val(si, sj, 0);
+                        for (int si = block.lo[0]; si <= block.hi[0]; ++si) 
+                        {
+                            total_contribution += data_ptr[idx++];
+                        }
                     }
                 }
             }
