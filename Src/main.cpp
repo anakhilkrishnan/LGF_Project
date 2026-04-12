@@ -46,19 +46,18 @@ void extendedMain()
     // creating source and target multifabs
     MeshData sourceFab = createMultiFab(n_cell, max_grid_size, n_ghost, n_comp);
     MeshData targetFab = createMultiFab(n_cell, max_grid_size, n_ghost, n_comp);
-    MeshData resultFab = createMultiFab(n_cell, max_grid_size, n_ghost, n_comp);
 
     // initializing multifabs
-    initializeMultiFab(sourceFab.mf);
-    initializeMultiFab(targetFab.mf);
+    initializeMultiFab(sourceFab.mf, 1.0);
+    initializeMultiFab(targetFab.mf, 0.0);
 
     // perform addition of box values
-    addEverySourceBox(sourceFab.mf, targetFab.mf, resultFab.mf);
+    addEverySourceBox(sourceFab.mf, targetFab.mf);
 
     // writing a simple plotfile
     std::string dir_name = "../Results";
     std::string plotfile_name = dir_name + "/plt00000";
-    WriteSingleLevelPlotfile(plotfile_name, resultFab.mf, {"phi"}, resultFab.geom, 0.0, 0);
+    WriteSingleLevelPlotfile(plotfile_name, targetFab.mf, {"phi"}, targetFab.geom, 0.0, 0);
     amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
 
     // marking end time and elapsed time

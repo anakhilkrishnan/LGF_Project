@@ -4,11 +4,9 @@
 
 using namespace amrex;
 
-void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab& result) 
+void addEverySourceBox(const MultiFab& source, MultiFab& target) 
 {
-    // Initialize the result MultiFab for += operations
-    result.setVal(0.0);
-
+    
     // Read data from the source MultiFab and make it available to all processes
     ConsolidatedData consolSource = consolidateMultiFab(source);
     
@@ -24,7 +22,7 @@ void addEverySourceBox(const MultiFab& source, const MultiFab& target, MultiFab&
     for (amrex::MFIter mfi(target); mfi.isValid(); ++mfi)
     {
         const amrex::Box& targetbox = mfi.validbox();
-        const Array4<Real>& phi = result.array(mfi);
+        const Array4<Real>& phi = target.array(mfi);
 
         amrex::ParallelFor(targetbox, [=] AMREX_GPU_DEVICE (int i, int j, int k)
         {   
