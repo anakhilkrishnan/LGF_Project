@@ -1,23 +1,24 @@
-#ifndef LGFFUNCTIONS_H_
-#define LGFFUNCTIONS_H_
+#ifndef COMPUTELGF_H_
+#define COMPUTELGF_H_
 
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_Geometry.H>
+#include <AMReX_Math.H>
 
 using namespace amrex;
 
 // function for computing lgf kernel inside parallelFor
 AMREX_GPU_DEVICE AMREX_FORCE_INLINE
 amrex::Real computeLGF(amrex::Real x_tar, amrex::Real y_tar, amrex::Real z_tar,
-                        amrex::Real x_src, amrex::Real y_tar, amrex::Real z_tar)
+                        amrex::Real x_src, amrex::Real y_src, amrex::Real z_src)
     {
         // compute distance squared
         amrex::Real rsquare = AMREX_D_TERM((x_tar - x_src)*(x_tar - x_src),
-                                            (y_tar - y_src)*(y_tar - y_src),
-                                            (z_tar - z_src)*(z_tar - z_src));
+                                           + (y_tar - y_src)*(y_tar - y_src),
+                                           + (z_tar - z_src)*(z_tar - z_src));
         
         // avoiding self interaction
         if (rsquare < 1e-12)
@@ -25,7 +26,7 @@ amrex::Real computeLGF(amrex::Real x_tar, amrex::Real y_tar, amrex::Real z_tar,
             return 0.0;
         }
             
-        amrex::Real r = amrex::sqrt(rsquare);
+        amrex::Real r = std::sqrt(rsquare);
         
         // compute and return the green's function value of the given pair
         // written as preprocessor directives to keep the function light on GPU
@@ -35,11 +36,11 @@ amrex::Real computeLGF(amrex::Real x_tar, amrex::Real y_tar, amrex::Real z_tar,
             
         #elif AMREX_SPACEDIM == 2
             // 2D: G(r) = (1 / 2*pi) * ln(r)
-            return (1.0 / (2.0 * M_PI)) * std::log(r);
+            return (1.0 / (2.0 * amrex::Math::pi<amrex::Real>())) * std::log(r);
             
         #elif AMREX_SPACEDIM == 3
             // 3D: G(r) = -1 / (4*pi*r)
-            return -1.0 / (4.0 * M_PI * r);
+            return -1.0 / (4.0 * amrex::Math::pi<amrex::Real>() * r);
             
         #endif        
     }

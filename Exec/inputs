@@ -1,4 +1,6 @@
 n_cell = 32
 max_grid_size = 16
 
+domain_lo = 0.0 0.0 0.0
+domain_hi = 1.0 1.0 1.0
 

@@ -53,7 +53,8 @@ void extendedMain()
     MeshData targetFab = createMeshData(dom_lo, dom_hi, n_cell, max_grid_size, n_ghost, n_comp);
 
     // initializing multifabs
-    initializeMultiFab(sourceFab.mf, 1.0);
+    // initializeMultiFab(sourceFab.mf, 1.0);
+    initializeSourceMultiFab(sourceFab);
     initializeMultiFab(targetFab.mf, 0.0);
 
     // perform addition of box values

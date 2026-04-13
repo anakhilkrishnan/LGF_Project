@@ -53,7 +53,8 @@ ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
     ParallelDescriptor::Bcast(meta_counts.data(), nprocs, root);
 
     // Calculate displacements for the unified global buffers
-    for (int i = 0; i < nprocs; ++i) {
+    for (int i = 0; i < nprocs; ++i) 
+    {
         data_displs[i+1] = data_displs[i] + data_counts[i];
         meta_displs[i+1] = meta_displs[i] + meta_counts[i];
     }
@@ -68,7 +69,8 @@ ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
     // Calculate byte-wise counts for the metadata struct
     Vector<int> m_byte_counts(nprocs);
     Vector<int> m_byte_displs(nprocs + 1, 0);
-    for (int i = 0; i < nprocs; ++i) {
+    for (int i = 0; i < nprocs; ++i) 
+    {
         m_byte_counts[i] = meta_counts[i] * sizeof(FabMetaData);
         m_byte_displs[i+1] = m_byte_displs[i] + m_byte_counts[i];
     }
@@ -84,8 +86,10 @@ ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
                                 static_cast<int>(global_meta.size() * sizeof(FabMetaData)), root);
 
     // Adjust the local offsets to point correctly into the unified global_data array
-    for (int p = 0; p < nprocs; ++p) {
-        for (int b = meta_displs[p]; b < meta_displs[p+1]; ++b) {
+    for (int p = 0; p < nprocs; ++p) 
+    {
+        for (int b = meta_displs[p]; b < meta_displs[p+1]; ++b) 
+        {
             global_meta[b].offset += data_displs[p];
         }
     }

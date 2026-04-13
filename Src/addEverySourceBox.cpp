@@ -1,7 +1,7 @@
 #include <AMReX_MultiFab.H>
 
 #include <MyFunctions.H>
-#include <LGFCompute.H>
+#include <ComputeLGF.H>
 
 using namespace amrex;
 
