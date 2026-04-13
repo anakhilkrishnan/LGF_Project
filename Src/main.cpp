@@ -34,19 +34,23 @@ void extendedMain()
 
     // variables to be read from ParmParse
     int n_cell, max_grid_size;
+    amrex::Array<amrex::Real,AMREX_SPACEDIM> dom_lo, dom_hi;
+
 
     // reading inputs file
     ParmParse pp;
     pp.get("n_cell",n_cell);
     pp.get("max_grid_size",max_grid_size);
+    pp.get("domain_lo", dom_lo);
+    pp.get("domain_hi", dom_hi);
 
     // initializing parameters for MultiFabs
     int n_ghost = 1;
     int n_comp = 1;
 
     // creating source and target multifabs
-    MeshData sourceFab = createMeshData(n_cell, max_grid_size, n_ghost, n_comp);
-    MeshData targetFab = createMeshData(n_cell, max_grid_size, n_ghost, n_comp);
+    MeshData sourceFab = createMeshData(dom_lo, dom_hi, n_cell, max_grid_size, n_ghost, n_comp);
+    MeshData targetFab = createMeshData(dom_lo, dom_hi, n_cell, max_grid_size, n_ghost, n_comp);
 
     // initializing multifabs
     initializeMultiFab(sourceFab.mf, 1.0);

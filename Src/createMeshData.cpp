@@ -4,7 +4,7 @@
 
 using namespace amrex;
 
-MeshData createMeshData(int n_cell, int max_grid_size, int n_ghost, int n_comp)
+MeshData createMeshData(Array<Real, AMREX_SPACEDIM> phy_dom_lo, Array<Real, AMREX_SPACEDIM> phy_dom_hi, int n_cell, int max_grid_size, int n_ghost, int n_comp)
 {
 
     BoxArray ba;
@@ -24,8 +24,7 @@ MeshData createMeshData(int n_cell, int max_grid_size, int n_ghost, int n_comp)
     ba.maxSize(max_grid_size);
 
     // This defines the physical box, [0,1] in each direction.
-    RealBox real_box({AMREX_D_DECL(0.0,0.0,0.0)},
-                        {AMREX_D_DECL( 1.0, 1.0, 1.0)});
+    RealBox real_box(phy_dom_lo, phy_dom_hi);
 
     // This defines a Geometry object
     geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
