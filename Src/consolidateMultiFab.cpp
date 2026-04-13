@@ -74,7 +74,7 @@ ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
     }
 
     // Treat metadata as char* (bytes) to avoid Mpi_typemap lookup
-    // The char* cast is a workaround for the fact that MPI does not know FabMetaData
+    // The char* cast is a workaround for the fact that MPI does not know FabMetaData (struct that I built)
     ParallelDescriptor::Gatherv(reinterpret_cast<char*>(local_meta.data()), 
                                 static_cast<int>(my_meta_size * sizeof(FabMetaData)), 
                                 reinterpret_cast<char*>(global_meta.data()), 

@@ -29,7 +29,7 @@ endif()
 
 add_executable(lgfpoisson
                 ../Src/main.cpp
-                ../Src/createMultiFab.cpp
+                ../Src/createMeshData.cpp
                 ../Src/initializeMultiFab.cpp
                 ../Src/addEverySourceBox.cpp
                 ../Src/consolidateMultiFab.cpp

@@ -25,7 +25,8 @@ void test_print()
 
 void extendedMain()
 {
-    // this is funny, idk why it paniqued
+    // this is funny, idk why it paniqued, this is NOT needed anymore since
+    // the use of addEverySourceBox()
     MFIter::allowMultipleMFIters(true);
 
     // marking start to track runtimes
@@ -44,8 +45,8 @@ void extendedMain()
     int n_comp = 1;
 
     // creating source and target multifabs
-    MeshData sourceFab = createMultiFab(n_cell, max_grid_size, n_ghost, n_comp);
-    MeshData targetFab = createMultiFab(n_cell, max_grid_size, n_ghost, n_comp);
+    MeshData sourceFab = createMeshData(n_cell, max_grid_size, n_ghost, n_comp);
+    MeshData targetFab = createMeshData(n_cell, max_grid_size, n_ghost, n_comp);
 
     // initializing multifabs
     initializeMultiFab(sourceFab.mf, 1.0);

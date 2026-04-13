@@ -4,7 +4,7 @@
 
 using namespace amrex;
 
-MeshData createMultiFab(int n_cell, int max_grid_size, int n_ghost, int n_comp)
+MeshData createMeshData(int n_cell, int max_grid_size, int n_ghost, int n_comp)
 {
 
     BoxArray ba;

@@ -31,7 +31,7 @@ using namespace amrex;
 void test_print();
 void extendedMain();
 
-MeshData createMultiFab(int n_cell, int max_grid_size, int n_ghost, int n_comp);
+MeshData createMeshData(int n_cell, int max_grid_size, int n_ghost, int n_comp);
 void initializeMultiFab(MultiFab& phi, amrex::Real init_val);
 ConsolidatedData consolidateMultiFab(const MultiFab& phifab);
 void addEverySourceBox(const MultiFab& source, MultiFab& target);
