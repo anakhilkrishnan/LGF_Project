@@ -14,7 +14,7 @@ amrex::Real sourceField(amrex::Real x, amrex::Real y, amrex::Real z)
     {
         // parameters of the gaussian distribution
         amrex::Real cent_x = 0.0;
-        amrex::Real cent_y = 0.0;
+        amrex::Real cent_y = 0.25;
         amrex::Real cent_z = 0.0;
         amrex::Real variance = 1.0;
 

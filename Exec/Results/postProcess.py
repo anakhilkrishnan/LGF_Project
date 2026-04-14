@@ -8,9 +8,11 @@ import re
 # ==========================================
 # User Defined Inputs (Matching ParmParse)
 # ==========================================
-n_cell = 256
+n_cell = 512
 dom_lo = -5.0
 dom_hi = 5.0
+gauss_cen_x = 0.0
+gauss_cen_y = 0.25
 variance = 1.0   # From SourceField.H
 plotfile = "plt0" + str(n_cell)
 
@@ -46,7 +48,7 @@ y_coords = np.linspace(dom_lo + dx/2.0, dom_hi - dx/2.0, n_cell)
 X, Y = np.meshgrid(x_coords, y_coords, indexing='ij')
 
 # 3. Compute Exact Analytical Solution
-R2 = X**2 + Y**2
+R2 = (X - gauss_cen_x)**2 + (Y - gauss_cen_y)**2
 R2 = np.where(R2 == 0, 1e-15, R2)
 
 phi_exact = (variance / 4.0) * (np.log(R2 / variance) + exp1(R2 / variance))
