@@ -31,9 +31,11 @@ add_executable(lgfpoisson
                 ../Src/main.cpp
                 ../Src/createMeshData.cpp
                 ../Src/initializeMultiFab.cpp
-                ../Src/addEverySourceBox.cpp
+                ../Src/addEverySource.cpp
                 ../Src/consolidateMultiFab.cpp
-                ../Src/MyFunctions.H)
+                ../Src/MyFunctions.H
+                ../Src/ComputeLGF.H
+                ../Src/SourceField.H)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
