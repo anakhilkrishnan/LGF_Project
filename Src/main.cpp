@@ -2,6 +2,7 @@
 #include <AMReX_Print.H>
 #include <AMReX_PlotFileUtil.H>
 #include <AMReX_ParmParse.H>
+#include <string>
 
 #include <MyFunctions.H>
 
@@ -60,14 +61,17 @@ void extendedMain()
     // perform addition of box values
     addEverySourceBox(sourceFab, targetFab);
 
-    // writing a simple plotfile
-    std::string dir_name = "../Results";
-    std::string plotfile_name = dir_name + "/plt00000";
-    WriteSingleLevelPlotfile(plotfile_name, targetFab.mf, {"phi"}, targetFab.geom, 0.0, 0);
-    amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
-
     // marking end time and elapsed time
     auto end_time = amrex::second();
     auto elapsed_time = end_time - start_time;
     amrex::Print() << "Time taken for computation: " << elapsed_time << "\n";
+    amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
+
+    // writing a simple plotfile
+    std::string dir_name = "../Results";
+    std::string plotfile_name = dir_name + "/plt0" + std::to_string(n_cell);
+    WriteSingleLevelPlotfile(plotfile_name, targetFab.mf, {"phi"}, targetFab.geom, 0.0, 0);
+    amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
+
+    
 }
