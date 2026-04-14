@@ -5,10 +5,8 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_MultiFab.H>
-#include <AMReX_Geometry.H>
 #include <AMReX_Math.H>
 
-using namespace amrex;
 
 // function for computing lgf kernel inside parallelFor
 AMREX_GPU_DEVICE AMREX_FORCE_INLINE

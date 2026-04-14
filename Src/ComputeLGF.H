@@ -5,10 +5,8 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_MultiFab.H>
-#include <AMReX_Geometry.H>
 #include <AMReX_Math.H>
 
-using namespace amrex;
 
 // function for computing lgf kernel inside parallelFor
 AMREX_GPU_DEVICE AMREX_FORCE_INLINE
@@ -26,19 +24,19 @@ amrex::Real computeLGF(amrex::Real x_tar, amrex::Real y_tar, amrex::Real z_tar,
             return 0.0;
         }
             
-        amrex::Real r = std::sqrt(rsquare);
-        
         // compute and return the green's function value of the given pair
         // written as preprocessor directives to keep the function light on GPU
         #if AMREX_SPACEDIM == 1
+            amrex::Real r = std::sqrt(rsquare);
             // 1D: G(x) = 0.5 * |x|
             return 0.5 * r;
             
         #elif AMREX_SPACEDIM == 2
             // 2D: G(r) = (1 / 2*pi) * ln(r)
-            return (1.0 / (2.0 * amrex::Math::pi<amrex::Real>())) * std::log(r);
+            return (1.0 / (4.0 * amrex::Math::pi<amrex::Real>())) * std::log(rsquare);
             
         #elif AMREX_SPACEDIM == 3
+            amrex::Real r = std::sqrt(rsquare);
             // 3D: G(r) = -1 / (4*pi*r)
             return -1.0 / (4.0 * amrex::Math::pi<amrex::Real>() * r);
             

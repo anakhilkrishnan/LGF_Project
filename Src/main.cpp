@@ -58,7 +58,7 @@ void extendedMain()
     initializeMultiFab(targetFab.mf, 0.0);
 
     // perform addition of box values
-    addEverySourceBox(sourceFab.mf, targetFab.mf);
+    addEverySourceBox(sourceFab, targetFab);
 
     // writing a simple plotfile
     std::string dir_name = "../Results";

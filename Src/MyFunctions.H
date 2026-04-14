@@ -5,7 +5,6 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_BCRec.H>
 #include <AMReX_MultiFab.H>
-#include <AMReX_Geometry.H>
 
 struct MeshData 
 {
@@ -35,6 +34,6 @@ MeshData createMeshData(Array<Real, AMREX_SPACEDIM> phy_dom_lo, Array<Real, AMRE
 void initializeMultiFab(MultiFab& phi, amrex::Real init_val);
 void initializeSourceMultiFab(MeshData& phi);
 ConsolidatedData consolidateMultiFab(const MultiFab& phifab);
-void addEverySourceBox(const MultiFab& source, MultiFab& target);
+void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData);
 
 #endif
