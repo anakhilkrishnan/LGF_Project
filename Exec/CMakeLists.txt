@@ -50,3 +50,5 @@ target_compile_definitions(lgfpoisson PRIVATE REL_RESULTS_DIR="Results/")
 
 ## Copy input files
 file( COPY ${CMAKE_SOURCE_DIR}/inputs DESTINATION . )
+## Copy job submit files 
+file( COPY ${CMAKE_SOURCE_DIR}/debug.sh DESTINATION .)
