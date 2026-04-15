@@ -1,0 +1,67 @@
+==========================================
+SLURM_CLUSTER_NAME = parampravega
+SLURM_ARRAY_JOB_ID = 
+SLURM_ARRAY_TASK_ID = 
+SLURM_ARRAY_TASK_COUNT = 
+SLURM_ARRAY_TASK_MAX = 
+SLURM_ARRAY_TASK_MIN = 
+SLURM_JOB_ACCOUNT = iisc
+SLURM_JOB_ID = 399583
+SLURM_JOB_NAME = LGF_solver_test
+SLURM_JOB_NODELIST = cn[087-088]
+SLURM_JOB_USER = meckrak
+SLURM_JOB_UID = 1880
+SLURM_JOB_PARTITION = debug
+SLURM_TASK_PID = 721
+SLURM_SUBMIT_DIR = /scratch/meckrak/Akhil/LGF_Project/Exec/build
+SLURM_CPUS_ON_NODE = 48
+SLURM_NTASKS = 96
+SLURM_TASK_PID = 721
+==========================================
+Initializing AMReX (26.04-77-gbd6a40c90422)...
+MPI initialized with 96 MPI processes
+MPI initialized with thread support level 0
+AMReX (26.04-77-gbd6a40c90422) initialized
+This is finally the start of my AMReX code.
+Time taken for computation: 608.2698204
+Writing plotfile to: ../Results/plt001024
+Plotfile written to: ../Results/plt001024
+Total program runtime: 656.1827819
+
+
+TinyProfiler total time across processes [min...avg...max]: 656.2 ... 656.2 ... 656.2
+
+-------------------------------------------------------------------------------------------
+Name                                        NCalls  Excl. Min  Excl. Avg  Excl. Max   Max %
+-------------------------------------------------------------------------------------------
+<Compute> addEverySourceBox()                    1      390.8      541.4      656.1  99.99%
+WriteMultiLevelPlotfile()                        1  0.0003447      114.7      265.3  40.43%
+<I/O> writingPlotfile                            1   3.29e-05  5.161e-05  7.556e-05   0.00%
+Other                                           15    0.06315    0.08024     0.1225   0.02%
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+Name                                        NCalls  Incl. Min  Incl. Avg  Incl. Max   Max %
+-------------------------------------------------------------------------------------------
+<Compute> addEverySourceBox()                    1      390.9      541.4      656.1  99.99%
+<I/O> writingPlotfile                            1   0.004366      114.7      265.3  40.43%
+WriteMultiLevelPlotfile()                        1   0.004316      114.7      265.3  40.43%
+Other                                           15    0.07296     0.1019     0.1572   0.02%
+-------------------------------------------------------------------------------------------
+
+Pinned Memory Usage:
+--------------------------------------------------------------------------------------------------------------
+Name                            Nalloc  AvgMem min  AvgMem avg  AvgMem max  MaxMem min  MaxMem avg  MaxMem max
+--------------------------------------------------------------------------------------------------------------
+The_Pinned_Arena::Initialize()      96       0   B       0   B       0   B    8192 KiB    8192 KiB    8192 KiB
+--------------------------------------------------------------------------------------------------------------
+
+Cpu Memory Usage:
+---------------------------------------------------------------------------------------------------------
+Name                       Nalloc  AvgMem min  AvgMem avg  AvgMem max  MaxMem min  MaxMem avg  MaxMem max
+---------------------------------------------------------------------------------------------------------
+<Setup> createMeshData        512     171 KiB     182 KiB     205 KiB     171 KiB     182 KiB     205 KiB
+WriteMultiLevelPlotfile()     256       0   B       0   B       3   B      64 KiB      85 KiB      96 KiB
+---------------------------------------------------------------------------------------------------------
+
+AMReX (26.04-77-gbd6a40c90422) finalized
