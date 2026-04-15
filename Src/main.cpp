@@ -2,6 +2,7 @@
 #include <AMReX_Print.H>
 #include <AMReX_PlotFileUtil.H>
 #include <AMReX_ParmParse.H>
+#include <AMReX_BLProfiler.H>
 #include <string>
 
 #include <MyFunctions.H>
@@ -26,10 +27,6 @@ void test_print()
 
 void extendedMain()
 {
-    // this is funny, idk why it paniqued, this is NOT needed anymore since
-    // the use of addEverySourceBox()
-    MFIter::allowMultipleMFIters(true);
-
     // marking start to track runtimes
     auto start_time = amrex::second();
 
@@ -58,19 +55,28 @@ void extendedMain()
     initializeSourceMultiFab(sourceFab);
     initializeMultiFab(targetFab.mf, 0.0);
 
+    auto compute_start_time = amrex::second();
     // perform addition of box values
     addEverySourceBox(sourceFab, targetFab);
 
     // marking end time and elapsed time
+    auto compute_end_time = amrex::second();
+    auto compute_time = compute_end_time - compute_start_time;
+    amrex::Print() << "Time taken for computation: " << compute_time << "\n";
+    
+    {
+        // adding profiling blocks for Tiny/Base profilers
+        BL_PROFILE("<I/O> writingPlotfile");
+
+        // writing a simple plotfile
+        const std::string& plotfile_name = amrex::Concatenate("../Results/plt0",n_cell);
+        amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
+        WriteSingleLevelPlotfile(plotfile_name, targetFab.mf, {"phi"}, targetFab.geom, 0.0, 0);
+        amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
+    }
+    
+
     auto end_time = amrex::second();
     auto elapsed_time = end_time - start_time;
-    amrex::Print() << "Time taken for computation: " << elapsed_time << "\n";
-    
-    // writing a simple plotfile
-    const std::string& plotfile_name = amrex::Concatenate("../Results/plt0",n_cell);
-    amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
-    WriteSingleLevelPlotfile(plotfile_name, targetFab.mf, {"phi"}, targetFab.geom, 0.0, 0);
-    amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
-
-    
+    amrex::Print() << "Total program runtime: " << elapsed_time << "\n";
 }

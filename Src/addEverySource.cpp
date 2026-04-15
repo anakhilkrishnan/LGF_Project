@@ -1,4 +1,5 @@
 #include <AMReX_MultiFab.H>
+#include <AMReX_BLProfiler.H>
 
 #include <MyFunctions.H>
 #include <ComputeLGF.H>
@@ -7,6 +8,9 @@ using namespace amrex;
 
 void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData) 
 {
+    // adding profiling blocks for Tiny/Base profilers
+    BL_PROFILE("<Compute> addEverySourceBox()");
+
     //extract MultiFabs and Geometries
     const amrex::MultiFab& source = sourceMeshData.mf;
     amrex::MultiFab& target = targetMeshData.mf;

@@ -1,5 +1,6 @@
 #include <AMReX.H>
 #include <AMReX_MultiFab.H>
+#include <AMReX_BLProfiler.H>
 
 #include <MyFunctions.H>
 #include <SourceField.H>
@@ -8,6 +9,9 @@ using namespace amrex;
 
 void initializeMultiFab(MultiFab& phi, amrex::Real init_val)
 {
+    // adding profiling blocks for Tiny/Base profilers
+    BL_PROFILE("<Setup> initializeMultiFab");
+
     for (MFIter mfi(phi); mfi.isValid(); ++mfi)
     {
         const Box& vbx = mfi.validbox();
@@ -21,6 +25,9 @@ void initializeMultiFab(MultiFab& phi, amrex::Real init_val)
 
 void initializeSourceMultiFab(MeshData& phi)
 {
+    // adding profiling blocks for Tiny/Base profilers
+    BL_PROFILE("<Setup> initializeSourceMultiFab");
+
     // extracting data from MeshData struct
     amrex::MultiFab& phi_mf = phi.mf;
     const amrex::Geometry& phi_geom = phi.geom;

@@ -1,0 +1,47 @@
+Initializing AMReX (26.04-72-g3c7601fb7f54)...
+MPI initialized with 4 MPI processes
+MPI initialized with thread support level 0
+AMReX (26.04-72-g3c7601fb7f54) initialized
+This is finally the start of my AMReX code.
+Time taken for computation: 14.35387412
+Writing plotfile to: ../Results/plt000256
+Plotfile written to: ../Results/plt000256
+Total program runtime: 14.80238654
+
+
+TinyProfiler total time across processes [min...avg...max]: 14.8 ... 14.8 ... 14.8
+
+-------------------------------------------------------------------------------------------
+Name                                        NCalls  Excl. Min  Excl. Avg  Excl. Max   Max %
+-------------------------------------------------------------------------------------------
+<Compute> addEverySourceBox()                    1      14.35      14.58       14.8  99.97%
+WriteMultiLevelPlotfile()                        1   0.000717     0.2222     0.4451   3.01%
+<I/O> writingPlotfile                            1  1.627e-05  2.159e-05  3.043e-05   0.00%
+Other                                           15   0.002454   0.003629   0.005499   0.04%
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+Name                                        NCalls  Incl. Min  Incl. Avg  Incl. Max   Max %
+-------------------------------------------------------------------------------------------
+<Compute> addEverySourceBox()                    1      14.35      14.58       14.8  99.97%
+<I/O> writingPlotfile                            1   0.001856     0.2237     0.4476   3.02%
+WriteMultiLevelPlotfile()                        1    0.00184     0.2236     0.4476   3.02%
+Other                                           15   0.002545   0.003969   0.006047   0.04%
+-------------------------------------------------------------------------------------------
+
+Pinned Memory Usage:
+--------------------------------------------------------------------------------------------------------------
+Name                            Nalloc  AvgMem min  AvgMem avg  AvgMem max  MaxMem min  MaxMem avg  MaxMem max
+--------------------------------------------------------------------------------------------------------------
+The_Pinned_Arena::Initialize()       4       1   B       1   B       3   B    8192 KiB    8192 KiB    8192 KiB
+--------------------------------------------------------------------------------------------------------------
+
+Cpu Memory Usage:
+---------------------------------------------------------------------------------------------------------
+Name                       Nalloc  AvgMem min  AvgMem avg  AvgMem max  MaxMem min  MaxMem avg  MaxMem max
+---------------------------------------------------------------------------------------------------------
+<Setup> createMeshData          8     264 KiB     264 KiB     264 KiB     264 KiB     264 KiB     264 KiB
+WriteMultiLevelPlotfile()       4       9   B      12   B      21   B     128 KiB     128 KiB     128 KiB
+---------------------------------------------------------------------------------------------------------
+
+AMReX (26.04-72-g3c7601fb7f54) finalized

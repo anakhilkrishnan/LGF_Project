@@ -1,5 +1,6 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_ParallelDescriptor.H>
+#include <AMReX_BLProfiler.H>
 
 #include <MyFunctions.H>
 
@@ -7,6 +8,9 @@ using namespace amrex;
 
 ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
 {
+    // adding profiling blocks for Tiny/Base profilers
+    BL_PROFILE("<Communicate> consolidateMultiFab()");
+
     // Each MPI rank stores its data and metadata into a sinle linearized vector
     Vector<Real> local_data;
     Vector<FabMetaData> local_meta;

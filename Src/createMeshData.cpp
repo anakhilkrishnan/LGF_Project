@@ -1,4 +1,5 @@
 #include <AMReX_MultiFab.H>
+#include <AMReX_BLProfiler.H>
 
 #include <MyFunctions.H>
 
@@ -6,6 +7,8 @@ using namespace amrex;
 
 MeshData createMeshData(Array<Real, AMREX_SPACEDIM> phy_dom_lo, Array<Real, AMREX_SPACEDIM> phy_dom_hi, int n_cell, int max_grid_size, int n_ghost, int n_comp)
 {
+    // adding profiling blocks for Tiny/Base profilers
+    BL_PROFILE("<Setup> createMeshData");
 
     BoxArray ba;
     Geometry geom;
