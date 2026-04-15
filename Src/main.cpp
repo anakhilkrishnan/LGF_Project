@@ -67,8 +67,7 @@ void extendedMain()
     amrex::Print() << "Time taken for computation: " << elapsed_time << "\n";
     
     // writing a simple plotfile
-    std::string dir_name = "../Results";
-    std::string plotfile_name = dir_name + "/plt0" + std::to_string(n_cell);
+    const std::string& plotfile_name = amrex::Concatenate("../Results/plt0",n_cell);
     amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
     WriteSingleLevelPlotfile(plotfile_name, targetFab.mf, {"phi"}, targetFab.geom, 0.0, 0);
     amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
