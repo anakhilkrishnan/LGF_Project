@@ -34,13 +34,17 @@ void extendedMain()
     int n_cell, max_grid_size;
     amrex::Array<amrex::Real,AMREX_SPACEDIM> dom_lo, dom_hi;
 
+    // setting a default plotfile prefix in case not specified in inputs
+    std::string plot_prefix = "../Results/plt";
 
     // reading inputs file
-    ParmParse pp;
+    amrex::ParmParse pp;
     pp.get("n_cell",n_cell);
     pp.get("max_grid_size",max_grid_size);
     pp.get("domain_lo", dom_lo);
     pp.get("domain_hi", dom_hi);
+
+    pp.query("plot_prefix", plot_prefix);
 
     // initializing parameters for MultiFabs
     int n_ghost = 1;
@@ -69,7 +73,7 @@ void extendedMain()
         BL_PROFILE("<I/O> writingPlotfile");
 
         // writing a simple plotfile
-        const std::string& plotfile_name = amrex::Concatenate("../Results/plt0",n_cell);
+        const std::string& plotfile_name = amrex::Concatenate(plot_prefix, n_cell);
         amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
         WriteSingleLevelPlotfile(plotfile_name, targetFab.mf, {"phi"}, targetFab.geom, 0.0, 0);
         amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";

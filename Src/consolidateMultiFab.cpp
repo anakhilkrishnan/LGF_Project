@@ -18,7 +18,15 @@ ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
     for (MFIter mfi(phifab); mfi.isValid(); ++mfi) 
     {
         const Box& bx = mfi.validbox();
-        auto const& phi_arr = phifab.const_array(mfi);
+
+        // since this MFIter is expected to run on the CPU, the data from the
+        // multiFab must first be copied to the current MPI rank
+        FArrayBox host_fab(bx, phifab.nComp(), amrex::The_Pinned_Arena());
+        host_fab.template copy<RunOn::Device>(phifab[mfi]);
+        amrex::Gpu::streamSynchronize();
+
+        // phi_arr extracted from the Box that was copied to the CPU
+        auto const& phi_arr = host_fab.const_array();
 
         // Metadata includes offset for each box and global indices for box lo and box hi
         local_meta.push_back({static_cast<int>(local_data.size()), bx.smallEnd(), bx.bigEnd()});

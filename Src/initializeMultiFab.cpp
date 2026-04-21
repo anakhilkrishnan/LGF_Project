@@ -21,6 +21,9 @@ void initializeMultiFab(MultiFab& phi, amrex::Real init_val)
                 phiarr(i,j,k) = init_val;
             });
     }
+
+    // waiting for the GPU stream to synchnorize
+    amrex::Gpu::streamSynchronize();
 }
 
 void initializeSourceMultiFab(MeshData& phi)
@@ -51,4 +54,6 @@ void initializeSourceMultiFab(MeshData& phi)
                 
             });
     }
+
+    // waiting for the GPU streams to synchnorize
 }

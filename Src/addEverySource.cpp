@@ -22,16 +22,28 @@ void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData)
     // Read data from the source MultiFab and make it available to all processes
     ConsolidatedData consolSource = consolidateMultiFab(source);
     
-    // Further work: Exporting data for computations on GPU
-    // ConsolidatedDataToGPUPointers();
+    // allocating space in VRAM for the source data and metadata
+    amrex::Gpu::DeviceVector<Real> d_data(consolSource.data.size());
+    amrex::Gpu::DeviceVector<FabMetaData> d_meta(consolSource.metadata.size());
 
-    // Export the consolidated data as pointers to the target MFIter
+    // copying the consolidated data from CPU to GPU
+    amrex::Gpu::copy(amrex::Gpu::hostToDevice, 
+                     consolSource.data.begin(), consolSource.data.end(), 
+                     d_data.begin());
+                     
+    amrex::Gpu::copy(amrex::Gpu::hostToDevice, 
+                     consolSource.metadata.begin(), consolSource.metadata.end(), 
+                     d_meta.begin());
+
+    // the above lines collapse into CPU use when compiled without USE_CUDA=TRUE
+
+    // export the consolidated data as pointers to the target MFIter
     int num_blocks = consolSource.metadata.size();
-    const Real* data_ptr = consolSource.data.data();
-    const FabMetaData* meta_ptr = consolSource.metadata.data();
+    const Real* data_ptr = d_data.data();
+    const FabMetaData* meta_ptr = d_meta.data();
     
     // Loop over target boxes in a separate MFIter
-    for (amrex::MFIter mfi(target); mfi.isValid(); ++mfi)
+    for (amrex::MFIter mfi(target, amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi)
     {
         const amrex::Box& targetbox = mfi.validbox();
         const Array4<Real>& phi = target.array(mfi);
@@ -96,4 +108,7 @@ void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData)
             phi(i, j, k) = total_contribution;
         });
     }
+
+    // wait for the GPU to synchnorize
+    amrex::Gpu::streamSynchronize();
 }

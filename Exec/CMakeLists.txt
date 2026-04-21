@@ -41,7 +41,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 
-#setup_target_for_cuda_compilation(lgfpoisson)
+setup_target_for_cuda_compilation(lgfpoisson)
 
 target_include_directories(lgfpoisson PRIVATE ../Src)
 target_link_libraries(lgfpoisson PRIVATE AMReX::amrex)
