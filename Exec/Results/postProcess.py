@@ -14,7 +14,7 @@ dom_hi = 5.0
 gauss_cen_x = 0.0
 gauss_cen_y = 0.25
 variance = 1.0   # From SourceField.H
-plotfile = "plt0" + str(n_cell)
+plotfile = "plt00" + str(n_cell)
 
 # ==========================================
 # Directory Setup
