@@ -1,0 +1,66 @@
+Initializing AMReX (26.04-97-gd10a21ad849d)...
+MPI initialized with 1 MPI processes
+MPI initialized with thread support level 0
+Initializing CUDA...
+CUDA initialized with 1 device.
+AMReX (26.04-97-gd10a21ad849d) initialized
+This is finally the start of my AMReX code.
+Time taken for computation: 91.77451386
+Writing plotfile to: ../Results/pltada01024
+Plotfile written to: ../Results/pltada01024
+Total program runtime: 91.78478715
+
+
+TinyProfiler total time across processes [min...avg...max]: 91.78 ... 91.78 ... 91.78
+
+-------------------------------------------------------------------------------------------
+Name                                        NCalls  Excl. Min  Excl. Avg  Excl. Max   Max %
+-------------------------------------------------------------------------------------------
+<Compute> addEverySourceBox()                    1      91.76      91.76      91.76  99.97%
+Other                                           17    0.02854    0.02854    0.02854   0.03%
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+Name                                        NCalls  Incl. Min  Incl. Avg  Incl. Max   Max %
+-------------------------------------------------------------------------------------------
+<Compute> addEverySourceBox()                    1      91.77      91.77      91.77  99.99%
+Other                                           17    0.04566    0.04566    0.04566   0.05%
+-------------------------------------------------------------------------------------------
+
+Device Memory Usage:
+---------------------------------------------------------
+Name                           Nalloc    AvgMem    MaxMem
+---------------------------------------------------------
+The_Arena::Initialize()             1  1804   B    23 GiB
+ResizeRandomSeed                    1    27 MiB    28 MiB
+<Setup> createMeshData              2    15 MiB    16 MiB
+<Compute> addEverySourceBox()       2  8131 KiB  8216 KiB
+WriteMultiLevelPlotfile()           1   629   B  8192 KiB
+VisMF::Write(FabArray)              1     1   B   300 KiB
+---------------------------------------------------------
+
+Managed Memory Usage:
+---------------------------------------------------------
+Name                             Nalloc  AvgMem    MaxMem
+---------------------------------------------------------
+The_Managed_Arena::Initialize()       1   0   B  8192 KiB
+---------------------------------------------------------
+
+Pinned Memory Usage:
+---------------------------------------------------------------
+Name                                 Nalloc    AvgMem    MaxMem
+---------------------------------------------------------------
+<Communicate> consolidateMultiFab()       1  1144   B  8192 KiB
+The_Pinned_Arena::Initialize()            1     0   B  8192 KiB
+VisMF::Write(FabArray)                    2   393   B  8192 KiB
+---------------------------------------------------------------
+
+Total GPU global memory (MB) spread across MPI: [32759 ... 32759]
+Free  GPU global memory (MB) spread across MPI: [6536 ... 6536]
+[The         Arena] max space (MB) allocated spread across MPI: [24569 ... 24569]
+[The         Arena] max space (MB) used      spread across MPI: [52 ... 52]
+[The Managed Arena] max space (MB) allocated spread across MPI: [8 ... 8]
+[The Managed Arena] max space (MB) used      spread across MPI: [0 ... 0]
+[The  Pinned Arena] max space (MB) allocated spread across MPI: [8 ... 8]
+[The  Pinned Arena] max space (MB) used      spread across MPI: [8 ... 8]
+AMReX (26.04-97-gd10a21ad849d) finalized
