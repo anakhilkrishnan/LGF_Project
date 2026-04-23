@@ -1,9 +1,27 @@
-# Ignore IDE specific files
+# IDE & OS Specific Files
 .vscode/
 .idea/
+.DS_Store
+*.swp
 
-# Ignore any folder starting with 'build' inside the Exec directory
-Exec/build*/
-Exec/Build*/
-Exec/Results/plt*
-Exec/Results/post*
+# CMake Build Directories (Root Level)
+# Ignores build/, buildgpu/, build_cpu/, etc. at the project root
+build*/
+Build*/
+out/
+
+# Executable Binaries
+# Ignore the compiled solver binaries inside the Exec subfolders
+Exec/LGF_test/lgfpoisson
+Exec/NSE_test/nserun
+
+# AMReX Simulation Data & Results
+# Ignore all plotfiles and post-processing dumps across all solvers
+Exec/**/Results/plt*
+Exec/**/Results/post*
+
+# Exception: Explicitly track your Python analysis scripts
+!Exec/**/Results/postProcess.py
+
+# Deprecated / Backup
+Exec/pre_file_tree_upgrade_build

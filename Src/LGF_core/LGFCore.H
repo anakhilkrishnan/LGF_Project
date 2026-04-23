@@ -1,5 +1,5 @@
-#ifndef COMPUTELGF_H_
-#define COMPUTELGF_H_
+#ifndef LGFCORE_H_
+#define LGFCORE_H_
 
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
@@ -7,6 +7,32 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_Math.H>
 
+
+// defining structs used within LGFcore
+struct MeshData 
+{
+    amrex::MultiFab mf;
+    amrex::Geometry geom;
+};
+
+struct FabMetaData
+{
+    int offset;
+    amrex::IntVect lo;
+    amrex::IntVect hi;
+    amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> dx;
+};
+
+struct ConsolidatedData 
+{
+    amrex::Vector<amrex::Real> data;
+    amrex::Vector<FabMetaData> metadata;
+};
+
+// defining key functions within LGFcore
+MeshData createMeshData(amrex::Array<amrex::Real, AMREX_SPACEDIM> phy_dom_lo, amrex::Array<amrex::Real, AMREX_SPACEDIM> phy_dom_hi, int n_cell, int max_grid_size, int n_ghost, int n_comp);
+ConsolidatedData consolidateMeshData(const MeshData& phifab);
+void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData);
 
 // function for computing lgf kernel inside parallelFor
 AMREX_GPU_DEVICE AMREX_FORCE_INLINE

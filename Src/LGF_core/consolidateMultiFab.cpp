@@ -2,7 +2,7 @@
 #include <AMReX_ParallelDescriptor.H>
 #include <AMReX_BLProfiler.H>
 
-#include <MyFunctions.H>
+#include <LGFCore.H>
 
 using namespace amrex;
 

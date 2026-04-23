@@ -1,7 +1,7 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_BLProfiler.H>
 
-#include <MyFunctions.H>
+#include <LGFCore.H>
 
 using namespace amrex;
 
@@ -38,6 +38,6 @@ MeshData createMeshData(Array<Real, AMREX_SPACEDIM> phy_dom_lo, Array<Real, AMRE
     // Create multifab
     MultiFab mfans(ba, dm, n_comp, n_ghost);
 
-    // Return reslt
+    // Return result
     return {std::move(mfans), geom};
 }
