@@ -6,10 +6,14 @@
 
 using namespace amrex;
 
-ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
+ConsolidatedData consolidateMeshData(const MeshData& phidata)
 {
     // adding profiling blocks for Tiny/Base profilers
     BL_PROFILE("<Communicate> consolidateMultiFab()");
+
+
+    const amrex::MultiFab& phifab = phidata.mf;
+    const amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> dx = phidata.geom.CellSizeArray();
 
     // Each MPI rank stores its data and metadata into a sinle linearized vector
     Vector<Real> local_data;
@@ -29,7 +33,8 @@ ConsolidatedData consolidateMultiFab(const MultiFab& phifab)
         auto const& phi_arr = host_fab.const_array();
 
         // Metadata includes offset for each box and global indices for box lo and box hi
-        local_meta.push_back({static_cast<int>(local_data.size()), bx.smallEnd(), bx.bigEnd()});
+
+        local_meta.push_back({static_cast<int>(local_data.size()), bx.smallEnd(), bx.bigEnd(), phidata.geom.CellSizeArray()});
 
         // Fills the linear vector with data
         for (int k = AMREX_D_PICK(0, 0, bx.smallEnd()[2]); k <= AMREX_D_PICK(0, 0, bx.bigEnd()[2]); ++k) 

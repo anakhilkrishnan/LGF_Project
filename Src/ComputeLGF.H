@@ -10,8 +10,8 @@
 
 // function for computing lgf kernel inside parallelFor
 AMREX_GPU_DEVICE AMREX_FORCE_INLINE
-amrex::Real computeLGF(amrex::Real x_tar, amrex::Real y_tar, amrex::Real z_tar,
-                        amrex::Real x_src, amrex::Real y_src, amrex::Real z_src)
+amrex::Real computeLGF(AMREX_D_DECL(amrex::Real x_tar, amrex::Real y_tar, amrex::Real z_tar),
+                        AMREX_D_DECL(amrex::Real x_src, amrex::Real y_src, amrex::Real z_src))
     {
         // compute distance squared
         amrex::Real rsquare = AMREX_D_TERM((x_tar - x_src)*(x_tar - x_src),

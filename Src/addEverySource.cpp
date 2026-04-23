@@ -12,15 +12,14 @@ void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData)
     BL_PROFILE("<Compute> addEverySourceBox()");
 
     //extract MultiFabs and Geometries
-    const amrex::MultiFab& source = sourceMeshData.mf;
     amrex::MultiFab& target = targetMeshData.mf;
     const amrex::Geometry& target_geom = targetMeshData.geom;
 
-    GpuArray<amrex::Real, AMREX_SPACEDIM> dx = target_geom.CellSizeArray();
+    GpuArray<amrex::Real, AMREX_SPACEDIM> tar_dx = target_geom.CellSizeArray();
     GpuArray<amrex::Real, AMREX_SPACEDIM> prob_lo = target_geom.ProbLoArray();
 
     // Read data from the source MultiFab and make it available to all processes
-    ConsolidatedData consolSource = consolidateMultiFab(source);
+    ConsolidatedData consolSource = consolidateMeshData(sourceMeshData);
     
     // allocating space in VRAM for the source data and metadata
     amrex::Gpu::DeviceVector<Real> d_data(consolSource.data.size());
@@ -51,19 +50,9 @@ void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData)
         amrex::ParallelFor(targetbox, [=] AMREX_GPU_DEVICE (int i, int j, int k)
         {   
             // extract physical coordinates of target cell
-            amrex::Real x_tar = prob_lo[0] + ((i + 0.5) * dx[0]);
-
-            #if AMREX_SPACEDIM >= 2
-                amrex::Real y_tar = prob_lo[1] + ((j + 0.5) * dx[1]);
-            #else
-                amrex::Real y_tar = 0.0;
-            #endif
-
-            #if AMREX_SPACEDIM == 3
-                amrex::Real z_tar = prob_lo[2] + ((k + 0.5) * dx[2]);
-            #else
-                amrex::Real z_tar = 0.0;
-            #endif
+            amrex::Real AMREX_D_DECL(x_tar = prob_lo[0] + (i + 0.5) * tar_dx[0],
+                                      y_tar = prob_lo[1] + (j + 0.5) * tar_dx[1],
+                                      z_tar = prob_lo[2] + (k + 0.5) * tar_dx[2]);
 
             amrex::Real total_contribution = 0.0;
 
@@ -72,32 +61,32 @@ void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData)
             {
                 const auto& block = meta_ptr[b];
                 int idx = block.offset;
+
+                amrex::Real dvol = AMREX_D_TERM(block.dx[0], * block.dx[1], * block.dx[2]);
                 
                 // Unpack and sum every cell in the source block
                 for (int sk = AMREX_D_PICK(0, 0, block.lo[2]); sk <= AMREX_D_PICK(0, 0, block.hi[2]); ++sk) 
                 {
                     // conditionally extract physical coordinates of source cell
                     #if AMREX_SPACEDIM == 3
-                        amrex::Real z_src = prob_lo[2] + ((sk + 0.5) * dx[2]);
-                    #else
-                        amrex::Real z_src = 0.0;
+                        amrex::Real z_src = prob_lo[2] + ((sk + 0.5) * block.dx[2]);
                     #endif
 
                     for (int sj = AMREX_D_PICK(0, block.lo[1], block.lo[1]); sj <= AMREX_D_PICK(0, block.hi[1], block.hi[1]); ++sj) 
                     {
                         #if AMREX_SPACEDIM >= 2
-                            amrex::Real y_src = prob_lo[1] + ((sj + 0.5) * dx[1]);
-                        #else
-                            amrex::Real y_src = 0.0;
+                            amrex::Real y_src = prob_lo[1] + ((sj + 0.5) * block.dx[1]);
                         #endif
 
                         for (int si = block.lo[0]; si <= block.hi[0]; ++si) 
                         {
-                            amrex::Real x_src = prob_lo[0] + ((si + 0.5) * dx[0]);
+                            amrex::Real x_src = prob_lo[0] + ((si + 0.5) * block.dx[0]);
                             
                             // compute the LGF kernel for the current source-target cell pair
-                            amrex::Real lgf = computeLGF(x_tar, y_tar, z_tar, x_src, y_src, z_src);
-                            amrex::Real dvol = AMREX_D_TERM(dx[0], * dx[1], * dx[2]);
+                            amrex::Real lgf = computeLGF(AMREX_D_DECL(x_tar, y_tar, z_tar),
+                                                            AMREX_D_DECL(x_src, y_src, z_src));
+                                                            
+                            
                             
                             // add the contribution of source cell based on lgf
                             total_contribution += (data_ptr[idx++] * lgf * dvol);
