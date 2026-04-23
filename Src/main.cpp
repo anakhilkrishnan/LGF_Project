@@ -82,5 +82,18 @@ void extendedMain()
 
     auto end_time = amrex::second();
     auto elapsed_time = end_time - start_time;
-    amrex::Print() << "Total program runtime: " << elapsed_time << "\n";
+
+    // making copies to track slowest and fastest processor
+    amrex::Real max_time = elapsed_time;
+    amrex::Real min_time = elapsed_time;
+
+    // performing a reduction over all the processors to track the slowest and
+    // fastest MPI rank
+    const int IOProc = amrex::ParallelDescriptor::IOProcessorNumber();
+    amrex::ParallelDescriptor::ReduceRealMax(max_time, IOProc);
+    amrex::ParallelDescriptor::ReduceRealMin(min_time, IOProc);
+
+    amrex::Print() << "Max compute time (Slowest Rank): " << max_time << " s\n"
+                   << "Min compute time (Fastest Rank): " << min_time << " s\n"
+                   << "Time spread (Load Imbalance)   : " << (max_time - min_time) << " s\n";
 }
