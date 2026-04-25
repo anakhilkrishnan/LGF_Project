@@ -1,5 +1,5 @@
-n_cell = 128
-max_grid_size = 128
+n_cell = 256
+max_grid_size = 256
 
 amrex.max_gpu_streams = 4
 

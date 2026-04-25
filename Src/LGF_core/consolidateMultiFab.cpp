@@ -19,21 +19,20 @@ ConsolidatedData consolidateMeshData(const MeshData& phidata)
     Vector<Real> local_data;
     Vector<FabMetaData> local_meta;
 
-    for (MFIter mfi(phifab); mfi.isValid(); ++mfi) 
+    // declaring a CPU side host_mf to pack source data
+    amrex::MultiFab host_mf(phifab.boxArray(), phifab.DistributionMap(), phifab.nComp(), 0, amrex::MFInfo().SetArena(amrex::The_Pinned_Arena()));
+
+    // copying data in bulk only once
+    amrex::dtoh_memcpy(host_mf, phifab);
+
+    for (MFIter mfi(host_mf); mfi.isValid(); ++mfi) 
     {
         const Box& bx = mfi.validbox();
 
-        // since this MFIter is expected to run on the CPU, the data from the
-        // multiFab must first be copied to the current MPI rank
-        FArrayBox host_fab(bx, phifab.nComp(), amrex::The_Pinned_Arena());
-        host_fab.template copy<RunOn::Device>(phifab[mfi]);
-        amrex::Gpu::streamSynchronize();
-
         // phi_arr extracted from the Box that was copied to the CPU
-        auto const& phi_arr = host_fab.const_array();
+        auto const& phi_arr = host_mf.const_array(mfi);
 
         // Metadata includes offset for each box and global indices for box lo and box hi
-
         local_meta.push_back({static_cast<int>(local_data.size()), bx.smallEnd(), bx.bigEnd(), phidata.geom.CellSizeArray()});
 
         // Fills the linear vector with data

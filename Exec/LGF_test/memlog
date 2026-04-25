@@ -1,0 +1,38 @@
+Final Memory Profile Report Across Processes:
+      | Name            |       Current      |   High Water Mark  |
+      |-----------------+--------------------+--------------------|
+      | MemPool         |  8192 ... 8192  KB |  8192 ... 8192  KB |
+      | Fab             |     0 ... 0      B |   112 ... 112   KB |
+      | BoxArray        |     0 ... 0      B |   688 ... 688    B |
+      |-----------------+--------------------+--------------------|
+      | Total           |  8192 ... 8192  KB |                    |
+
+      | Name            |      Current #     |  High Water Mark # |
+      |-----------------+--------------------+--------------------|
+      | BoxArray Innard |      0 ... 0       |      2 ... 2       |
+      | MultiFab        |      0 ... 0       |      3 ... 3       |
+
+ * Proc VmPeak          VmSize               VmHWM                VmRSS             
+   [   10 ... 10    GB] [   10 ... 10    GB] [  488 ... 491   MB] [  488 ... 491   MB]
+
+ * Node total           free                 free+buffers+cached  shared            
+   [   15 ... 15    GB] [ 6465 ... 6465  MB] [   10 ... 10    GB] [ 1140 ... 1140  MB]
+
+Final Memory Profile Report Across Processes:
+      | Name            |       Current      |   High Water Mark  |
+      |-----------------+--------------------+--------------------|
+      | MemPool         |  8192 ... 8192  KB |  8192 ... 8192  KB |
+      | Fab             |     0 ... 0      B |  2064 ... 2064  KB |
+      |-----------------+--------------------+--------------------|
+      | Total           |  8192 ... 8192  KB |                    |
+
+      | Name            |      Current #     |  High Water Mark # |
+      |-----------------+--------------------+--------------------|
+      | MultiFab        |      0 ... 0       |      3 ... 3       |
+
+ * Proc VmPeak          VmSize               VmHWM                VmRSS             
+   [   12 ... 12    GB] [   12 ... 12    GB] [  492 ... 492   MB] [  488 ... 488   MB]
+
+ * Node total           free                 free+buffers+cached  shared            
+   [   15 ... 15    GB] [ 7262 ... 7262  MB] [   11 ... 11    GB] [ 1131 ... 1131  MB]
+
