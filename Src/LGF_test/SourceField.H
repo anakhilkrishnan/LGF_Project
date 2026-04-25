@@ -21,7 +21,7 @@ amrex::Real sourceField(amrex::Real x, amrex::Real y, amrex::Real z)
             amrex::Real cent_y = 0.25;
             amrex::Real cent_z = 0.0;
         #endif
-        amrex::Real variance = 1.0;
+        amrex::Real variance = 0.5;
 
         amrex::Real r_sq = AMREX_D_TERM((x - cent_x)*(x - cent_x),
                                            + (y - cent_y)*(y - cent_y),

@@ -6,7 +6,7 @@
 
 using namespace amrex;
 
-ConsolidatedData consolidateMeshData(const MeshData& phidata)
+ConsolidatedData consolidateMeshData(const MeshData& phidata, amrex::Vector<int> box_tag_arr)
 {
     // adding profiling blocks for Tiny/Base profilers
     BL_PROFILE("<Communicate> consolidateMultiFab()");
@@ -20,13 +20,20 @@ ConsolidatedData consolidateMeshData(const MeshData& phidata)
     Vector<FabMetaData> local_meta;
 
     // declaring a CPU side host_mf to pack source data
-    amrex::MultiFab host_mf(phifab.boxArray(), phifab.DistributionMap(), phifab.nComp(), 0, amrex::MFInfo().SetArena(amrex::The_Pinned_Arena()));
+    amrex::MultiFab host_mf(phifab.boxArray(), phifab.DistributionMap(), phifab.nComp(), phifab.nGrow(), amrex::MFInfo().SetArena(amrex::The_Pinned_Arena()));
 
     // copying data in bulk only once
     amrex::dtoh_memcpy(host_mf, phifab);
 
     for (MFIter mfi(host_mf); mfi.isValid(); ++mfi) 
     {
+        // if the current box is not tagged, skip
+        if (box_tag_arr[mfi.LocalIndex()] == 0)
+        {
+            continue;
+        }
+
+        // pack box values if empty
         const Box& bx = mfi.validbox();
 
         // phi_arr extracted from the Box that was copied to the CPU

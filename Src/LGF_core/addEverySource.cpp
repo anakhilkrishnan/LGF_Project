@@ -5,7 +5,7 @@
 
 using namespace amrex;
 
-void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData) 
+void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData, amrex::Vector<int> box_tag_arr) 
 {
     // adding profiling blocks for Tiny/Base profilers
     BL_PROFILE("<Compute> addEverySourceBox()");
@@ -18,7 +18,7 @@ void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData)
     GpuArray<amrex::Real, AMREX_SPACEDIM> prob_lo = target_geom.ProbLoArray();
 
     // Read data from the source MultiFab and make it available to all processes
-    ConsolidatedData consolSource = consolidateMeshData(sourceMeshData);
+    ConsolidatedData consolSource = consolidateMeshData(sourceMeshData, box_tag_arr);
     
     // allocating space in VRAM for the source data and metadata
     amrex::Gpu::DeviceVector<Real> d_data(consolSource.data.size());

@@ -54,6 +54,4 @@ void initializeSourceMultiFab(MeshData& phi)
                 
             });
     }
-
-    // waiting for the GPU streams to synchnorize
 }
