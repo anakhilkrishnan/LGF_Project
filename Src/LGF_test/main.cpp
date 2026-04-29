@@ -37,7 +37,7 @@ void extendedMain()
     bool write_plot = false;
 
     // setting a default plotfile prefix in case not specified in inputs
-    std::string plot_prefix = "../Results/plt";
+    std::string plot_prefix = "./Results/plt";
 
     // reading inputs file
     amrex::ParmParse pp;

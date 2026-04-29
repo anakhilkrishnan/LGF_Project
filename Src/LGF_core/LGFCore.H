@@ -30,7 +30,6 @@ struct ConsolidatedData
 };
 
 // defining key functions within LGFcore
-MeshData createMeshData(amrex::Array<amrex::Real, AMREX_SPACEDIM> phy_dom_lo, amrex::Array<amrex::Real, AMREX_SPACEDIM> phy_dom_hi, int n_cell, int max_grid_size, int n_ghost, int n_comp);
 ConsolidatedData consolidateMeshData(const MeshData& phifab, amrex::Vector<int> box_tag_arr);
 void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData, amrex::Vector<int> box_tag_arr);
 amrex::Vector<int> tagSource(const amrex::MultiFab& phifab, const amrex::Real source_threshold = 1.0e-8);

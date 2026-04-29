@@ -58,7 +58,7 @@ X, Y = np.meshgrid(x_coords, y_coords, indexing='ij')
 R2 = (X - gauss_cen_x)**2 + (Y - gauss_cen_y)**2
 R2 = np.where(R2 == 0, 1e-15, R2)
 
-phi_exact = (variance / 4.0) * (np.log(R2 / variance) + exp1(R2 / variance)) + (variance / 4.0) * np.log(variance)
+phi_exact = (variance / 4.0) * (np.log(R2) + exp1(R2 / variance))
 
 # 4. Compute Absolute Error
 abs_error = np.abs(phi_num - phi_exact)

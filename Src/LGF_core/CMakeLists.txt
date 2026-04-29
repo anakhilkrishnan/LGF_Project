@@ -2,7 +2,6 @@
 add_library(LGF_core_lib STATIC
     addEverySource.cpp
     consolidateMultiFab.cpp
-    createMeshData.cpp
     tagSource.cpp
     LGFCore.H
 )

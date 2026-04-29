@@ -15,5 +15,6 @@ void extendedMain();
 
 void initializeMultiFab(MultiFab& phi, amrex::Real init_val);
 void initializeSourceMultiFab(MeshData& phi);
+MeshData createMeshData(Array<Real, AMREX_SPACEDIM> phy_dom_lo, Array<Real, AMREX_SPACEDIM> phy_dom_hi, int n_cell, int max_grid_size, int n_ghost, int n_comp);
 
 #endif

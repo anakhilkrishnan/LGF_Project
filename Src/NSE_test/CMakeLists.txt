@@ -5,7 +5,7 @@ add_executable(nserun
 # setup_target_for_cuda_compilation(nserun)
 
 # Link to the SAME LGF_core_lib to use MeshData and kernels
-target_link_libraries(nserun PRIVATE LGF_core_lib AMReX::amrex)
+target_link_libraries(nserun PRIVATE LGF_core_lib NSE_core_lib AMReX::amrex)
 
 set_target_properties(nserun PROPERTIES 
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/NSE_test"
