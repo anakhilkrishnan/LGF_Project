@@ -2,7 +2,7 @@ add_executable(nserun
                 main.cpp)
 
 # uncomment below line for gpu compilation
-# setup_target_for_cuda_compilation(nserun)
+setup_target_for_cuda_compilation(nserun)
 
 # Link to the SAME LGF_core_lib to use MeshData and kernels
 target_link_libraries(nserun PRIVATE LGF_core_lib NSE_core_lib AMReX::amrex)

@@ -1,4 +1,6 @@
 #include <AMReX.H>
+#include <AMReX_MultiFab.H>
+#include <AMReX_MultiFabUtil.H>
 #include <AMReX_Print.H>
 #include <AMReX_PlotFileUtil.H>
 #include <AMReX_ParmParse.H>
@@ -16,19 +18,21 @@ void test_print()
     amrex::Print() << "This is the start of my first NSE solver." << "\n";
 }
 
-void convertToCellCen(amrex::Multifab& phifab)
-{
-
-}
-
-void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, const amrex::BoxArray ba, const amrex::DistributionMap dm, const amrex::Geometry& geom, int n_cell, std::string plot_prefix)
+void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, const amrex::BoxArray ba, const amrex::DistributionMapping dm, const amrex::Geometry& geom, int n_cell, std::string plot_prefix)
 {
     
     // building a multiFab with 3 components for plotting
    amrex::MultiFab plotFab(ba, dm, 5, 0);
 
     // 1. Use AMReX's native hardware-accelerated face-to-cell averaging
-    amrex::average_face_to_cellcenter(plotFab, 0, amrex::Array<const amrex::MultiFab*, 3>{&state.getVel(0), &state.getVel(1), &state.getVel(2)});
+    #if AMREX_SPACEDIM == 1
+        amrex::average_face_to_cellcenter(plotFab, 0, amrex::Array<const amrex::MultiFab*, AMREX_SPACEDIM>{&state.getVel(0)});
+    #elif AMREX_SPACEDIM == 2
+        amrex::average_face_to_cellcenter(plotFab, 0, amrex::Array<const amrex::MultiFab*, AMREX_SPACEDIM>{&state.getVel(0), &state.getVel(1)});
+    #elif AMREX_SPACEDIM == 3
+        amrex::average_face_to_cellcenter(plotFab, 0, amrex::Array<const amrex::MultiFab*, AMREX_SPACEDIM>{&state.getVel(0), &state.getVel(1), &state.getVel(2)});
+    #endif
+    
 
     // 2. Pressure and TagRegion are already cell-centered, just copy them!
     amrex::MultiFab::Copy(plotFab, state.getPres(), 0, 3, 1, 0); 
@@ -38,7 +42,7 @@ void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, 
     amrex::Vector<std::string> varnames = {"pressure", "x_velocity", "x_velocity", "x_velocity", "Active_Box_Tag"};
 
     // writing a simple plotfile
-    const std::string& plotfile_name = amrex::Concatenate(plot_prefix, n_cell);
+    const std::string& plotfile_name = amrex::Concatenate(plot_prefix, step);
     amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
     WriteSingleLevelPlotfile(plotfile_name, plotFab, varnames, geom, time, step);
     amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
@@ -84,8 +88,8 @@ void extendedMain()
     pp.get("max_steps", max_steps);
 
     // plotting data
-    pp.get("plot_int", plot_int);
     pp.query("write_plot", write_plot);
+    pp.get("plot_int", plot_int);
     pp.query("plot_prefix", plot_prefix);
 
 

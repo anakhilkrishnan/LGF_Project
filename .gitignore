@@ -8,12 +8,24 @@
 # Ignores build/, buildgpu/, build_cpu/, etc. at the project root
 build*/
 Build*/
+nsebuild*/
+nseBuild*/
+NSEbuild*/
+NSEBuild*/
 out/
 
 # Executable Binaries
 # Ignore the compiled solver binaries inside the Exec subfolders
 Exec/LGF_test/lgfpoisson
 Exec/NSE_test/nserun
+
+Exec/build*/
+Exec/Build*/
+Exec/nsebuild*/
+Exec/Nsebuild*/
+Exec/NSEbuild*/
+Exec/NSEBuild*/
+
 
 # AMReX Simulation Data & Results
 # Ignore all plotfiles and post-processing dumps across all solvers

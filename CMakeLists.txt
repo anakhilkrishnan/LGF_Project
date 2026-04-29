@@ -46,13 +46,13 @@ endif()
 
 # adding additional repositories
 add_subdirectory(Src/LGF_core)
-add_subdirectory(Src/LGF_test)
-# add_subdirectory(Src/NSE_core)
-# add_subdirectory(Src/NSE_test) 
+# add_subdirectory(Src/LGF_test)
+add_subdirectory(Src/NSE_core)
+add_subdirectory(Src/NSE_test) 
 
 # make Exec directories in case they're not present
-file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/LGF_test/Results")
-file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/LGF_test/Logs")
+# file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/LGF_test/Results")
+# file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/LGF_test/Logs")
 
-# file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/NSE_test/Results")
-# file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/NSE_test/Logs")
+file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/NSE_test/Results")
+file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/Exec/NSE_test/Logs")

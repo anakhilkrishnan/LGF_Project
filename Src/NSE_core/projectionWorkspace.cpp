@@ -41,7 +41,7 @@ void ProjectionWorkspace::computeConvectiveFluxes(const FlowField& state)
 
 }
 
-void ProjectionWorkspace::predictVelocity(FlowField& state)
+void ProjectionWorkspace::predictVelocity(FlowField& state_n, FlowField& stage, amrex::Real dt, amrex::Real alpha, amrex::Real beta, amrex::Real gamma)
 {
 
     // use the right hand side to predict velocity at the next time step,
