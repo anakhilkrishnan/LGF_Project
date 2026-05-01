@@ -25,7 +25,7 @@ ProjectionWorkspace::ProjectionWorkspace(const amrex::Geometry& geom_in, const a
     divU_max_norm = 0.0;
 }
 
-void ProjectionWorkspace::computeConvectiveFluxes(const FlowField& state)
+void ProjectionWorkspace::computeConvectiveFluxes(const FlowField& state, amrex::Real Re)
 {
     // compute the right hand side which is of the form
     // 1/Re(laplacian(u)) - grad(P) - u.divergence(u)
@@ -33,6 +33,30 @@ void ProjectionWorkspace::computeConvectiveFluxes(const FlowField& state)
     // discretized using a second order finite difference KEP scheme
     // as outlined in Morinishi et al.
 
+    // extracting physical dx for computations
+    const amrex::Geometry& geom = init_state.getGeom();
+    amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> dx = geom.CellSizeArray();
+
+    // for each velocity direction, rhs is computed accordingly
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim)
+    {
+        for (amrex::MFIter mfi(state.getVel(idim), amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi)
+        {
+            const amrex::Box& bx = mfi.tilebox();
+            amrex::GpuArray<amrex::Array4<amrex::Real const>, AMREX_SPACEDIM> vel_arr;
+            for (int d = 0; d < AMREX_SPACEDIM; ++d) 
+            {
+                vel_arr[d] = state_n.getVel(d).const_array(mfi);
+            }
+            auto const& pres_arr = state.getPres().array(mfi);
+            auto const& rhs = rhs_vel[idim];
+
+            amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE (int i, int j, int k)
+            {
+                rhs(i,j,k) = morinishiUFlux<idim>(i, j, k, vel_arr, pres_arr, dx, Re);
+            });
+        }
+    }
 }
 
 void ProjectionWorkspace::predictVelocity(FlowField& state_n, FlowField& stage, amrex::Real dt, amrex::Real alpha, amrex::Real beta, amrex::Real gamma)
@@ -54,7 +78,7 @@ void ProjectionWorkspace::correctVelocity(FlowField& state)
     // use the updated pressure to correct velocity to a divergence free field
 }
 
-void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, int rk_order)
+void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, amrex::Real Re, int rk_order)
 {
 
     // perform low-storage RK method for specified order, which can be reduced 
@@ -73,7 +97,7 @@ void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, in
         amrex::Real gamma = coeffs[k].gam;
 
         // compute and store fluxes in workspace
-        computeConvectiveFluxes(stage);
+        computeConvectiveFluxes(stage, Re);
 
         // compute predicted velocity without divergence free condition
         // store predicted velocity within stage

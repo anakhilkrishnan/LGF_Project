@@ -29,7 +29,7 @@ class ProjectionWorkspace
         void predictVelocity(FlowField& state_n, FlowField& stage, amrex::Real dt, amrex::Real alpha, amrex::Real beta, amrex::Real gamma);
         void computePressure(FlowField& stage);
         void correctVelocity(FlowField& stage);
-        void advanceTimeStep(FlowField& state_n, amrex::Real dt, int rk_order);
+        void advanceTimeStep(FlowField& state_n, amrex::Real dt, amrex::Real Re, int rk_order);
 };
 
 #endif

@@ -131,7 +131,7 @@ void extendedMain()
 
     // necessary ParmParse parameters
     int n_cell, max_grid_size, rk_order, plot_int, max_steps, n_ghost;
-    amrex::Real t_start, t_stop, cfl, source_tag_thresh;
+    amrex::Real t_start, t_stop, cfl, source_tag_thresh, Re;
     amrex::Array<amrex::Real, AMREX_SPACEDIM> dom_lo, dom_hi;
 
     // pre-defined ParmParse parameters
@@ -152,6 +152,7 @@ void extendedMain()
 
 
     // solver data
+    pp.get("Re", Re);
     pp.get("tagging_threshold", source_tag_thresh);
 
     // time stepping data
@@ -208,7 +209,7 @@ void extendedMain()
         dt = 0.0001;
 
         // advance time using RK for time, KEP Morinishi for space and LGF for pressure poisson
-        workspace.advanceTimeStep(state_n, dt, rk_order);
+        workspace.advanceTimeStep(state_n, dt, Re, rk_order);
 
         // update counters
         time += dt;
