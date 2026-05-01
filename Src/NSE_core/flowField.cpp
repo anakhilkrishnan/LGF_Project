@@ -22,6 +22,11 @@ FlowField::FlowField(const amrex::Geometry& geom, const amrex::BoxArray& ba, con
     tagRegion.define(ba, dm, n_comp, n_ghost);
     tagRegion.setVal(0.0);
 
+    // initialize divU upon creation
+    divU.define(ba, dm, n_comp, n_ghost);
+    divU.setVal(0.0);
+
+    globalgeom = geom;
 }
 
 FlowField::FlowField(const FlowField& other)
@@ -84,6 +89,21 @@ amrex::MultiFab& FlowField::getTagRegion()
 const amrex::MultiFab& FlowField::getTagRegion() const 
 {
     return tagRegion; 
+}
+
+amrex::MultiFab& FlowField::getDivU() 
+{
+    return divU; 
+}
+
+const amrex::MultiFab& FlowField::getDivU() const 
+{
+    return divU; 
+}
+
+const amrex::Geometry& FlowField::getGeom() const 
+{
+    return globalgeom; 
 }
 
 void FlowField::setBoundary(const amrex::Geometry& geom)

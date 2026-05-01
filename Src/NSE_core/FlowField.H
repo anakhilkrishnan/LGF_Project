@@ -9,26 +9,32 @@
 
 using namespace amrex;
 
-class FlowField {
-private:
-    amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> vel;
-    amrex::MultiFab pres;
+class FlowField 
+{
+    private:
+        amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> vel;
+        amrex::MultiFab pres;
+        amrex::MultiFab divU;
+        amrex::MultiFab tagRegion;
+        amrex::Geometry globalgeom;
 
-public:
-    amrex::MultiFab tagRegion;
-    FlowField(const amrex::Geometry& geom, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm, const int n_comp, const int n_ghost);
-    FlowField(const FlowField& other);
-    FlowField& operator=(const FlowField& other);
+    public:
+        FlowField(const amrex::Geometry& geom, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm, const int n_comp, const int n_ghost);
+        FlowField(const FlowField& other);
+        FlowField& operator=(const FlowField& other);
+    
+        // retrieves corresponding dimension's velocity
+        amrex::MultiFab& getVel(int idim);
+        const amrex::MultiFab& getVel(int idim) const;
+        amrex::MultiFab& getPres();
+        const amrex::MultiFab& getPres() const;
+        amrex::MultiFab& getTagRegion();
+        const amrex::MultiFab& getTagRegion() const;
+        amrex::MultiFab& getDivU();
+        const amrex::MultiFab& getDivU() const;
+        const amrex::Geometry& getGeom() const;
 
-    // Dimension-agnostic getter! Pass 0 for X, 1 for Y, 2 for Z
-    amrex::MultiFab& getVel(int idim);
-    const amrex::MultiFab& getVel(int idim) const;
-    amrex::MultiFab& getPres();
-    const amrex::MultiFab& getPres() const;
-    amrex::MultiFab& getTagRegion();
-    const amrex::MultiFab& getTagRegion() const;
-
-    void setBoundary(const amrex::Geometry& geom);
+        void setBoundary(const amrex::Geometry& geom);
 };
 
 #endif

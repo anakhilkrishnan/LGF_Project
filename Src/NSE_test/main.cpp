@@ -1,30 +1,97 @@
-#include <AMReX.H>
-#include <AMReX_MultiFab.H>
-#include <AMReX_MultiFabUtil.H>
-#include <AMReX_Print.H>
-#include <AMReX_PlotFileUtil.H>
-#include <AMReX_ParmParse.H>
-#include <AMReX_BLProfiler.H>
-#include <string>
-
-#include <FlowField.H>
-#include <ProjectionWorkspace.H>
-
+#include <MyFunctions.H>
 
 using namespace amrex;
 
-void test_print()
+int main(int argc, char* argv[])
+{
+    amrex::Initialize(argc,argv);
+
+    testPrint();
+    extendedMain();
+
+    amrex::Finalize();
+    return 0;
+}
+
+void testPrint()
 {
     amrex::Print() << "This is the start of my first NSE solver." << "\n";
 }
 
+amrex::MultiFab computeCellCenteredVorticity(const FlowField& state)
+{
+    BL_PROFILE("computeCellCenteredVorticity()");
+
+    // get geometry and grid info using your safely encapsulated getter!
+    const amrex::Geometry& geom = state.getGeom();
+    amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> dx = geom.CellSizeArray();
+
+    amrex::BoxArray ba = state.getPres().boxArray();
+    amrex::DistributionMapping dm = state.getPres().DistributionMap();
+
+    // allocate the cell-centered vorticity MultiFab
+    // In 2D: 1 component (omega_z). In 3D: 3 components (omega_x, omega_y, omega_z)
+    int ncomp = (AMREX_SPACEDIM == 2) ? 1 : 3;
+    amrex::MultiFab vort(ba, dm, ncomp, 0);
+
+    // compute the averaged gradients on the GPU
+    for (amrex::MFIter mfi(vort, amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi)
+    {
+        const amrex::Box& bx = mfi.tilebox();
+
+        auto const& vort_arr = vort.array(mfi);
+        auto const& u_arr    = state.getVel(0).const_array(mfi);
+        auto const& v_arr    = state.getVel(1).const_array(mfi);
+        
+        #if AMREX_SPACEDIM == 3
+        auto const& w_arr    = state.getVel(2).const_array(mfi);
+        #endif
+
+        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE (int i, int j, int k)
+        {
+            // Note: A face-centered array at index (i,j,k) represents the 'left' or 'bottom' face.
+            // (i+1,j,k) represents the 'right' face, etc.
+            
+            #if AMREX_SPACEDIM == 2
+                // dv/dx averaged from top and bottom y-faces
+                amrex::Real dvdx = (v_arr(i+1,j,k) + v_arr(i+1,j+1,k) - v_arr(i-1,j,k) - v_arr(i-1,j+1,k)) / (4.0 * dx[0]);
+                // du/dy averaged from left and right x-faces
+                amrex::Real dudy = (u_arr(i,j+1,k) + u_arr(i+1,j+1,k) - u_arr(i,j-1,k) - u_arr(i+1,j-1,k)) / (4.0 * dx[1]);
+                
+                vort_arr(i,j,k) = dvdx - dudy;
+
+            #elif AMREX_SPACEDIM == 3
+                // omega_x = dw/dy - dv/dz
+                amrex::Real dwdy = (w_arr(i,j+1,k) + w_arr(i,j+1,k+1) - w_arr(i,j-1,k) - w_arr(i,j-1,k+1)) / (4.0 * dx[1]);
+                amrex::Real dvdz = (v_arr(i,j,k+1) + v_arr(i,j+1,k+1) - v_arr(i,j,k-1) - v_arr(i,j+1,k-1)) / (4.0 * dx[2]);
+                vort_arr(i,j,k,0) = dwdy - dvdz;
+
+                // omega_y = du/dz - dw/dx
+                amrex::Real dudz = (u_arr(i,j,k+1) + u_arr(i+1,j,k+1) - u_arr(i,j,k-1) - u_arr(i+1,j,k-1)) / (4.0 * dx[2]);
+                amrex::Real dwdx = (w_arr(i+1,j,k) + w_arr(i+1,j,k+1) - w_arr(i-1,j,k) - w_arr(i-1,j,k+1)) / (4.0 * dx[0]);
+                vort_arr(i,j,k,1) = dudz - dwdx;
+
+                // omega_z = dv/dx - du/dy
+                amrex::Real dvdx = (v_arr(i+1,j,k) + v_arr(i+1,j+1,k) - v_arr(i-1,j,k) - v_arr(i-1,j+1,k)) / (4.0 * dx[0]);
+                amrex::Real dudy = (u_arr(i,j+1,k) + u_arr(i+1,j+1,k) - u_arr(i,j-1,k) - u_arr(i+1,j-1,k)) / (4.0 * dx[1]);
+                vort_arr(i,j,k,2) = dvdx - dudy;
+            #endif
+        });
+    }
+
+    return vort;
+}
+
 void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, const amrex::BoxArray ba, const amrex::DistributionMapping dm, const amrex::Geometry& geom, int n_cell, std::string plot_prefix)
 {
-    
-    // building a multiFab with 3 components for plotting
-   amrex::MultiFab plotFab(ba, dm, 5, 0);
+    // checking total components for plotfile
+    int ncomp_vort = (AMREX_SPACEDIM == 2) ? 1 : 3;
+    int ncomp_plot = AMREX_SPACEDIM + ncomp_vort + 3 ;
 
-    // 1. Use AMReX's native hardware-accelerated face-to-cell averaging
+    // building a multiFab with n dim + 2 components for plotting
+   amrex::MultiFab plotFab(ba, dm, ncomp_plot, 0);
+
+   // converting face-centered data to cell-centered data
     #if AMREX_SPACEDIM == 1
         amrex::average_face_to_cellcenter(plotFab, 0, amrex::Array<const amrex::MultiFab*, AMREX_SPACEDIM>{&state.getVel(0)});
     #elif AMREX_SPACEDIM == 2
@@ -33,20 +100,27 @@ void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, 
         amrex::average_face_to_cellcenter(plotFab, 0, amrex::Array<const amrex::MultiFab*, AMREX_SPACEDIM>{&state.getVel(0), &state.getVel(1), &state.getVel(2)});
     #endif
     
+    amrex::MultiFab::Copy(plotFab, state.getPres(), 0, AMREX_SPACEDIM, 1, 0); 
+    amrex::MultiFab::Copy(plotFab, state.getTagRegion(), 0, AMREX_SPACEDIM + 1, 1, 0);
+    amrex::MultiFab::Copy(plotFab, state.getDivU(), 0, AMREX_SPACEDIM + 2, 1, 0);
+    amrex::MultiFab::Copy(plotFab, computeCellCenteredVorticity(state), 0, AMREX_SPACEDIM + 3, ncomp_vort, 0);
 
-    // 2. Pressure and TagRegion are already cell-centered, just copy them!
-    amrex::MultiFab::Copy(plotFab, state.getPres(), 0, 3, 1, 0); 
-    amrex::MultiFab::Copy(plotFab, state.getTagRegion(), 0, 4, 1, 0);
 
     // exporting the names of the MultiFabs
-    amrex::Vector<std::string> varnames = {"pressure", "x_velocity", "x_velocity", "x_velocity", "Active_Box_Tag"};
+    amrex::Vector<std::string> varnames = {AMREX_D_DECL("x_velocity", "y_velocity", "z_velocity"), "pressure", "active_box_tag", "divU"};
+    #if AMREX_SPACEDIM == 2
+        varnames.push_back("z_vorticity");
+    #elif AMREX_SPACEDIM == 3
+        varnames.push_back("x_vorticity");
+        varnames.push_back("y_vorticity");
+        varnames.push_back("z_vorticity");
+    #endif
 
     // writing a simple plotfile
     const std::string& plotfile_name = amrex::Concatenate(plot_prefix, step);
     amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
     WriteSingleLevelPlotfile(plotfile_name, plotFab, varnames, geom, time, step);
     amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
-
 }
 
 void extendedMain()
@@ -107,11 +181,11 @@ void extendedMain()
     amrex::Vector<int> is_periodic(AMREX_SPACEDIM, 0); // infinite domain using zero-grad BC
     amrex::Geometry geom(domain, &real_box, amrex::CoordSys::cartesian, is_periodic.data());
 
-    // initializing solver objects
+    // declare solver objects
     FlowField state_n(geom, ba, dm, n_comp, n_ghost);
     ProjectionWorkspace workspace(geom, ba, dm, n_comp, n_ghost);
 
-    // PENDING: write a function that performs initialization of state_n as per problem
+    initializeFlowField(state_n);
     
     // performing time stepping
     amrex::Real dt;
@@ -175,13 +249,3 @@ void extendedMain()
                    << "Time spread (Load Imbalance)   : " << (max_time - min_time) << " s\n";
 }   
 
-int main(int argc, char* argv[])
-{
-    amrex::Initialize(argc,argv);
-
-    test_print();
-    extendedMain();
-
-    amrex::Finalize();
-    return 0;
-}

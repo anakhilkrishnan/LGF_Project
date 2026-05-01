@@ -6,6 +6,7 @@
 #include <AMReX_BCRec.H>
 #include <AMReX_Math.H>
 #include <AMReX_Array.H>
+#include <AMReX_BLProfiler.H>
 
 #include <FlowField.H>
 
@@ -19,10 +20,8 @@ class ProjectionWorkspace
         amrex::DistributionMapping dm;
 
         amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> rhs_vel;
-        amrex::MultiFab divU;
         amrex::MultiFab corr_pres;
         
-
     public: 
         amrex::Real divU_max_norm;
         ProjectionWorkspace(const amrex::Geometry& geom_in, const amrex::BoxArray& ba_in, const amrex::DistributionMapping& dm_in, const int n_comp, const int n_ghost);

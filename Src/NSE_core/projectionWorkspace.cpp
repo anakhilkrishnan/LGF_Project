@@ -1,5 +1,3 @@
-#include <AMReX_BLProfiler.H>
-
 #include <ProjectionWorkspace.H>
 #include <spatialDiscretization.H>
 #include <RKCoefficients.H>
@@ -19,10 +17,6 @@ ProjectionWorkspace::ProjectionWorkspace(const amrex::Geometry& geom_in, const a
         // initialize velocities upon creation
         rhs_vel[idim].setVal(0.0);
     }
-
-    // initialize divU upon creation
-    divU.define(ba, dm, n_comp, n_ghost);
-    divU.setVal(0.0);
 
     // initialize corr_pres upon creation
     corr_pres.define(ba, dm, n_comp, n_ghost);
@@ -62,6 +56,10 @@ void ProjectionWorkspace::correctVelocity(FlowField& state)
 
 void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, int rk_order)
 {
+
+    // perform low-storage RK method for specified order, which can be reduced 
+    // to a set of Forward Euler like stages with the final sum having appropriate
+    // coefficients alpha, beta, gamma
 
     BL_PROFILE("<Compute> advanceTimeStep()");
     FlowField stage = state_n;
