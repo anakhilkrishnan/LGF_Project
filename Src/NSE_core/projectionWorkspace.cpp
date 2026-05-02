@@ -180,13 +180,12 @@ void ProjectionWorkspace::correctVelocityandPressure(FlowField& stage, amrex::Re
     {
         // updating velocity correctly
         // BCs are not updated here
-        amrex::Real minus_dt_by_gam = -dt / gamma;
-        amrex::MultiFab::Saxpy(stage.getVel(idim), minus_dt_by_gam, rhs_vel_corr[idim], 0, 0, stage.getVel(idim).nComp(), 0);
-
-        // updating pressure to reflect base state + corrected
-        amrex::MultiFab::Add(stage.getPres(), corr_pres, 0, 0, stage.getPres().nComp(), 0);
+        amrex::MultiFab::Subtract(stage.getVel(idim), rhs_vel_corr[idim], 0, 0, stage.getVel(idim).nComp(), 0);
     }
 
+    // updating pressure to reflect base state + corrected
+    amrex::Real gam_by_dt = gamma/dt;
+    amrex::MultiFab::Saxpy(stage.getPres(), gam_by_dt, corr_pres, 0, 0, stage.getPres().nComp(), 0);
 }
 
 void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, amrex::Real Re, int rk_order, amrex::Real source_tag_thresh)

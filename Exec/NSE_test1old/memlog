@@ -1,0 +1,20 @@
+Final Memory Profile Report Across Processes:
+      | Name            |       Current      |   High Water Mark  |
+      |-----------------+--------------------+--------------------|
+      | MemPool         |  8192 ... 8192  KB |  8192 ... 8192  KB |
+      | Fab             |     0 ... 0      B |  3360 ... 3360  KB |
+      | BoxArray        |     0 ... 0      B |  5144 ... 5144   B |
+      |-----------------+--------------------+--------------------|
+      | Total           |  8192 ... 8192  KB |                    |
+
+      | Name            |      Current #     |  High Water Mark # |
+      |-----------------+--------------------+--------------------|
+      | BoxArray Innard |      0 ... 0       |      1 ... 1       |
+      | MultiFab        |      0 ... 0       |     16 ... 16      |
+
+ * Proc VmPeak          VmSize               VmHWM                VmRSS             
+   [   12 ... 12    GB] [   12 ... 12    GB] [  500 ... 500   MB] [  496 ... 496   MB]
+
+ * Node total           free                 free+buffers+cached  shared            
+   [   15 ... 15    GB] [ 8987 ... 8987  MB] [   12 ... 12    GB] [  704 ... 704   MB]
+

@@ -16,8 +16,11 @@ out/
 
 # Executable Binaries
 # Ignore the compiled solver binaries inside the Exec subfolders
-Exec/LGF_test/lgfpoisson
-Exec/NSE_test/nserun
+# Build artifacts and binaries
+lgfpoisson
+nserun
+*.o
+*.ex
 
 Exec/build*/
 Exec/Build*/
