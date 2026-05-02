@@ -8,12 +8,6 @@
 
 
 // defining structs used within LGFcore
-struct MeshData 
-{
-    amrex::MultiFab mf;
-    amrex::Geometry geom;
-};
-
 struct FabMetaData
 {
     int offset;
@@ -29,8 +23,8 @@ struct ConsolidatedData
 };
 
 // defining key functions within LGFcore
-ConsolidatedData consolidateMeshData(const MeshData& phifab, amrex::Vector<int> box_tag_arr);
-void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData, amrex::Vector<int> box_tag_arr);
+ConsolidatedData consolidateMultiFab(const amrex::MultiFab& phifab, const amrex::Geometry& geom, amrex::Vector<int> box_tag_arr);
+void addEverySourceBox(const amrex::MultiFab& source, amrex::MultiFab& target, const amrex::Geometry& geom, amrex::Vector<int> box_tag_arr);
 amrex::Vector<int> tagSource(const amrex::MultiFab& phifab, const amrex::Real source_threshold = 1.0e-8);
 
 // function for computing lgf kernel inside parallelFor

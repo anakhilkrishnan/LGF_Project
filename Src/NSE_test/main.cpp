@@ -187,6 +187,8 @@ void extendedMain()
     ProjectionWorkspace workspace(geom, ba, dm, n_comp, n_ghost);
 
     initializeFlowField(state_n);
+
+    // PENDING: employ boundary conditions somewhere here
     
     // performing time stepping
     amrex::Real dt;
@@ -209,7 +211,7 @@ void extendedMain()
         dt = 0.0001;
 
         // advance time using RK for time, KEP Morinishi for space and LGF for pressure poisson
-        workspace.advanceTimeStep(state_n, dt, Re, rk_order);
+        workspace.advanceTimeStep(state_n, dt, Re, rk_order, source_tag_thresh);
 
         // update counters
         time += dt;

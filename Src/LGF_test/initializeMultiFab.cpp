@@ -7,33 +7,10 @@
 
 using namespace amrex;
 
-void initializeMultiFab(MultiFab& phi, amrex::Real init_val)
-{
-    // adding profiling blocks for Tiny/Base profilers
-    BL_PROFILE("<Setup> initializeMultiFab");
-
-    for (MFIter mfi(phi); mfi.isValid(); ++mfi)
-    {
-        const Box& vbx = mfi.validbox();
-        auto const& phiarr = phi.array(mfi);
-        ParallelFor(vbx, [=] AMREX_GPU_DEVICE(int i, int j, int k)
-            {
-                phiarr(i,j,k) = init_val;
-            });
-    }
-
-    // waiting for the GPU stream to synchnorize
-    amrex::Gpu::streamSynchronize();
-}
-
-void initializeSourceMultiFab(MeshData& phi)
+void initializeSourceMultiFab(amrex::MultiFab& phi_mf, amrex::Geometry& phi_geom)
 {
     // adding profiling blocks for Tiny/Base profilers
     BL_PROFILE("<Setup> initializeSourceMultiFab");
-
-    // extracting data from MeshData struct
-    amrex::MultiFab& phi_mf = phi.mf;
-    const amrex::Geometry& phi_geom = phi.geom;
 
     // extracting physical dx, physical domain lo for computing x,y,z
     GpuArray<amrex::Real, AMREX_SPACEDIM> dx = phi_geom.CellSizeArray();

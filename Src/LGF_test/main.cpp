@@ -33,7 +33,7 @@ void extendedMain()
     // variables to be read from ParmParse
     int n_cell, max_grid_size;
     amrex::Real source_tag_thresh;
-    amrex::Array<amrex::Real,AMREX_SPACEDIM> dom_lo, dom_hi;
+    amrex::Array<amrex::Real,AMREX_SPACEDIM> phy_dom_lo, phy_dom_hi;
     bool write_plot = false;
 
     // setting a default plotfile prefix in case not specified in inputs
@@ -43,8 +43,8 @@ void extendedMain()
     amrex::ParmParse pp;
     pp.get("n_cell",n_cell);
     pp.get("max_grid_size",max_grid_size);
-    pp.get("domain_lo", dom_lo);
-    pp.get("domain_hi", dom_hi);
+    pp.get("domain_lo", phy_dom_lo);
+    pp.get("domain_hi", phy_dom_hi);
     pp.get("tagging_threshold", source_tag_thresh);
 
     pp.query("write_plot", write_plot);
@@ -54,21 +54,46 @@ void extendedMain()
     int n_ghost = 1;
     int n_comp = 1;
 
+    BoxArray ba;
+    Geometry geom;
+
+    // Define the computational domain
+    IntVect dom_lo(AMREX_D_DECL(       0,        0,        0));
+    IntVect dom_hi(AMREX_D_DECL(n_cell-1, n_cell-1, n_cell-1));
+    Box domain(dom_lo, dom_hi);
+
+    // Define the periodicity
+    Vector<int> is_periodic(AMREX_SPACEDIM, 0); // 0 = not periodic
+
+    // Initialize the boxarray "ba" from the single box "bx"
+    ba.define(domain);
+    // Break up boxarray "ba" into chunks no larger than "max_grid_size" along a direction
+    ba.maxSize(max_grid_size);
+
+    // This defines the physical box, [0,1] in each direction.
+    RealBox real_box(phy_dom_lo, phy_dom_hi);
+
+    // This defines a Geometry object
+    geom.define(domain,&real_box,CoordSys::cartesian,is_periodic.data());
+
+    // How Boxes are distrubuted among MPI processes
+    DistributionMapping dm(ba);
+
     // creating source and target multifabs
-    MeshData sourceMeshData = createMeshData(dom_lo, dom_hi, n_cell, max_grid_size, n_ghost, n_comp);
-    MeshData targetMeshData = createMeshData(dom_lo, dom_hi, n_cell, max_grid_size, n_ghost, n_comp);
+    amrex::MultiFab sourceMF(ba, dm, n_comp, n_ghost);
+    amrex::MultiFab targetMF(ba, dm, n_comp, n_ghost);
 
     // initializing multifabs
-    initializeSourceMultiFab(sourceMeshData);
-    initializeMultiFab(targetMeshData.mf, 0.0);
+    initializeSourceMultiFab(sourceMF, geom);
+    targetMF.setVal(0.0);
 
     auto compute_start_time = amrex::second();
 
     // running the tagging algorithmn and obtaining the box tags as an array of 0s and 1s
-    amrex::Vector<int> box_tag_arr = tagSource(sourceMeshData.mf, source_tag_thresh);
+    amrex::Vector<int> box_tag_arr = tagSource(sourceMF, source_tag_thresh);
 
     // performing addition of box values
-    addEverySourceBox(sourceMeshData, targetMeshData, box_tag_arr);
+    addEverySourceBox(sourceMF, targetMF, geom, box_tag_arr);
 
     // marking end time and elapsed time
     auto compute_end_time = amrex::second();
@@ -76,7 +101,7 @@ void extendedMain()
     amrex::Print() << "Time taken for computation: " << compute_time << "\n";
 
     // building a MultiFab to visualize the cells that are being tagged
-    amrex::MultiFab tagRegion(sourceMeshData.mf.boxArray(), sourceMeshData.mf.DistributionMap(), 1, 0);
+    amrex::MultiFab tagRegion(sourceMF.boxArray(), sourceMF.DistributionMap(), 1, 0);
 
     for (MFIter mfi(tagRegion); mfi.isValid(); ++mfi) 
     {
@@ -97,9 +122,9 @@ void extendedMain()
         BL_PROFILE("<I/O> writingPlotfile");
 
         // building a multiFab with 3 components for plotting
-        amrex::MultiFab plotFab(targetMeshData.mf.boxArray(), targetMeshData.mf.DistributionMap(), 3, 0);
-        amrex::MultiFab::Copy(plotFab, sourceMeshData.mf, 0, 0, 1, 0); // Component 0
-        amrex::MultiFab::Copy(plotFab, targetMeshData.mf, 0, 1, 1, 0); // Component 1
+        amrex::MultiFab plotFab(targetMF.boxArray(), targetMF.DistributionMap(), 3, 0);
+        amrex::MultiFab::Copy(plotFab, sourceMF, 0, 0, 1, 0); // Component 0
+        amrex::MultiFab::Copy(plotFab, targetMF, 0, 1, 1, 0); // Component 1
         amrex::MultiFab::Copy(plotFab, tagRegion, 0, 2, 1, 0); // Component 2
 
         // exporting the names of the MultiFabs
@@ -108,7 +133,7 @@ void extendedMain()
         // writing a simple plotfile
         const std::string& plotfile_name = amrex::Concatenate(plot_prefix, n_cell);
         amrex::Print() << "Writing plotfile to: " << plotfile_name << "\n";
-        WriteSingleLevelPlotfile(plotfile_name, plotFab, varnames, targetMeshData.geom, 0.0, 0);
+        WriteSingleLevelPlotfile(plotfile_name, plotFab, varnames, geom, 0.0, 0);
         amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
     }
     

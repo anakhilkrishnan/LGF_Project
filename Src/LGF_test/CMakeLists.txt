@@ -1,7 +1,6 @@
 add_executable(lgfpoisson
                 main.cpp
                 initializeMultiFab.cpp
-                createMeshData.cpp
                 MyFunctions.H
                 SourceField.H)
 

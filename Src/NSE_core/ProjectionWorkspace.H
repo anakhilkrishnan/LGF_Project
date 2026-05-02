@@ -20,16 +20,18 @@ class ProjectionWorkspace
         amrex::DistributionMapping dm;
 
         amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> rhs_vel;
+        amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> rhs_vel_corr;
         amrex::MultiFab corr_pres;
         
     public: 
         amrex::Real divU_max_norm;
         ProjectionWorkspace(const amrex::Geometry& geom_in, const amrex::BoxArray& ba_in, const amrex::DistributionMapping& dm_in, const int n_comp, const int n_ghost);
-        void computeConvectiveFluxes(const FlowField& state);
-        void predictVelocity(FlowField& state_n, FlowField& stage, amrex::Real dt, amrex::Real alpha, amrex::Real beta, amrex::Real gamma);
-        void computePressure(FlowField& stage);
-        void correctVelocity(FlowField& stage);
-        void advanceTimeStep(FlowField& state_n, amrex::Real dt, amrex::Real Re, int rk_order);
+        void computeConvectiveFluxes(const FlowField& stage, amrex::Real Re);
+        void predictVelocity(const FlowField& state_n, FlowField& stage, amrex::Real dt, amrex::Real alpha, amrex::Real beta, amrex::Real gamma);
+        void computePressure(FlowField& stage, amrex::Real source_tag_thresh);
+        void computeVelocityCorrection(FlowField& stage);
+        void correctVelocityandPressure(FlowField& stage, amrex::Real gamma, amrex::Real dt);
+        void advanceTimeStep(FlowField& state_n, amrex::Real dt, amrex::Real Re, int rk_order, amrex::Real source_tag_thresh);
 };
 
 #endif

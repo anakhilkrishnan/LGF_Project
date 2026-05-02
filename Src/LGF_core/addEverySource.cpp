@@ -5,20 +5,17 @@
 
 using namespace amrex;
 
-void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData, amrex::Vector<int> box_tag_arr) 
+void addEverySourceBox(const amrex::MultiFab& source, amrex::MultiFab& target, const amrex::Geometry& geom, amrex::Vector<int> box_tag_arr) 
 {
     // adding profiling blocks for Tiny/Base profilers
     BL_PROFILE("<Compute> addEverySourceBox()");
 
-    //extract MultiFabs and Geometries
-    amrex::MultiFab& target = targetMeshData.mf;
-    const amrex::Geometry& target_geom = targetMeshData.geom;
-
-    GpuArray<amrex::Real, AMREX_SPACEDIM> tar_dx = target_geom.CellSizeArray();
-    GpuArray<amrex::Real, AMREX_SPACEDIM> prob_lo = target_geom.ProbLoArray();
+    //extract cell-sizes and physical dom_lo for x,y,z computations
+    GpuArray<amrex::Real, AMREX_SPACEDIM> dx = geom.CellSizeArray();
+    GpuArray<amrex::Real, AMREX_SPACEDIM> prob_lo = geom.ProbLoArray();
 
     // Read data from the source MultiFab and make it available to all processes
-    ConsolidatedData consolSource = consolidateMeshData(sourceMeshData, box_tag_arr);
+    ConsolidatedData consolSource = consolidateMultiFab(source, geom, box_tag_arr);
     
     // allocating space in VRAM for the source data and metadata
     amrex::Gpu::DeviceVector<Real> d_data(consolSource.data.size());
@@ -49,9 +46,9 @@ void addEverySourceBox(const MeshData& sourceMeshData, MeshData& targetMeshData,
         amrex::ParallelFor(targetbox, [=] AMREX_GPU_DEVICE (int i, int j, int k)
         {   
             // extract physical coordinates of target cell
-            amrex::Real AMREX_D_DECL(x_tar = prob_lo[0] + (i + 0.5) * tar_dx[0],
-                                      y_tar = prob_lo[1] + (j + 0.5) * tar_dx[1],
-                                      z_tar = prob_lo[2] + (k + 0.5) * tar_dx[2]);
+            amrex::Real AMREX_D_DECL(x_tar = prob_lo[0] + (i + 0.5) * dx[0],
+                                      y_tar = prob_lo[1] + (j + 0.5) * dx[1],
+                                      z_tar = prob_lo[2] + (k + 0.5) * dx[2]);
 
             amrex::Real total_contribution = 0.0;
 
