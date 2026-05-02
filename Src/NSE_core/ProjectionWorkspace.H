@@ -28,7 +28,7 @@ class ProjectionWorkspace
         ProjectionWorkspace(const amrex::Geometry& geom_in, const amrex::BoxArray& ba_in, const amrex::DistributionMapping& dm_in, const int n_comp, const int n_ghost);
         void computeConvectiveFluxes(const FlowField& stage, amrex::Real Re);
         void predictVelocity(const FlowField& state_n, FlowField& stage, amrex::Real dt, amrex::Real alpha, amrex::Real beta, amrex::Real gamma);
-        void computePressure(FlowField& stage, amrex::Real source_tag_thresh);
+        void computePressure(FlowField& stage, amrex::Real source_tag_thresh, amrex::Vector<int>& box_tag_arr);
         void computeVelocityCorrection(FlowField& stage);
         void correctVelocityandPressure(FlowField& stage, amrex::Real gamma, amrex::Real dt);
         void advanceTimeStep(FlowField& state_n, amrex::Real dt, amrex::Real Re, int rk_order, amrex::Real source_tag_thresh);

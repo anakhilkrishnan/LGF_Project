@@ -1,0 +1,25 @@
+Initializing AMReX (26.05-2-gff4721186f24)...
+MPI initialized with 1 MPI processes
+MPI initialized with thread support level 0
+Initializing CUDA...
+CUDA initialized with 1 device.
+AMReX (26.05-2-gff4721186f24) initialized
+This is the start of my first NSE solver.
+Writing plotfile to: ./Results/plttaggpu00000
+Plotfile written to: ./Results/plttaggpu00000
+SANITY CHECK: Max tag in state_n is: 1
+Writing plotfile to: ./Results/plttaggpu00001
+Plotfile written to: ./Results/plttaggpu00001
+Step: 1 | Time: 0.0001965951853 | dt: 0.0001965951853 | WallTime: 49.23608437s | divU_max: 14.48217261
+SANITY CHECK: Max tag in state_n is: 1
+Writing plotfile to: ./Results/plttaggpu00002
+Plotfile written to: ./Results/plttaggpu00002
+Step: 2 | Time: 0.0003934126275 | dt: 0.0001968174422 | WallTime: 49.29737161s | divU_max: 55.53624992
+SANITY CHECK: Max tag in state_n is: 1
+Writing plotfile to: ./Results/plttaggpu00003
+Plotfile written to: ./Results/plttaggpu00003
+Step: 3 | Time: 0.0005920172908 | dt: 0.0001986046633 | WallTime: 49.23774973s | divU_max: 254.0586343
+SANITY CHECK: Max tag in state_n is: 1
+Writing plotfile to: ./Results/plttaggpu00004
+Plotfile written to: ./Results/plttaggpu00004
+Step: 4 | Time: 0.0007507917574 | dt: 0.0001587744666 | WallTime: 49.23852577s | divU_max: 1246.468828

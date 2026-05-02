@@ -95,7 +95,7 @@ void ProjectionWorkspace::predictVelocity(const FlowField& state_n, FlowField& s
     // PENDING: Update boundary conditions here!
 }
 
-void ProjectionWorkspace::computePressure(FlowField& stage, amrex::Real source_tag_thresh)
+void ProjectionWorkspace::computePressure(FlowField& stage, amrex::Real source_tag_thresh, amrex::Vector<int>& box_tag_arr)
 {
     BL_PROFILE("<Compute> advanceTimeStep(): computePressure()");
 
@@ -121,7 +121,7 @@ void ProjectionWorkspace::computePressure(FlowField& stage, amrex::Real source_t
 
     // use the custom lgf solver to compute the pressure at the next time step
     // running the tagging algorithmn and obtaining the box tags as an array of 0s and 1s
-    amrex::Vector<int> box_tag_arr = tagSource(stage.getDivU(), source_tag_thresh);
+    box_tag_arr = tagSource(stage.getDivU(), source_tag_thresh);
     
     // write out divU_max_norm
     divU_max_norm = stage.getDivU().norm0(0, 0, false);
@@ -198,6 +198,7 @@ void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, am
     BL_PROFILE("<Compute> advanceTimeStep()");
     FlowField stage = state_n;
     amrex::Vector<RKCoeffs> coeffs = getRKCoeffs(rk_order);
+    amrex::Vector<int> tag_region;
 
     for(int k = 0; k < rk_order; ++k)
     {
@@ -217,7 +218,7 @@ void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, am
         // find divergence of predicted velocity, store in workspace
         // use custom LGF solver to find pressure correction delta
         // update pressure stored in stage
-        computePressure(stage, source_tag_thresh);
+        computePressure(stage, source_tag_thresh, tag_region);
 
         // use pressure to compute velocity correction
         // store correction in workspace
@@ -228,5 +229,22 @@ void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, am
 
     }
 
+    for (MFIter mfi(stage.getTagRegion()); mfi.isValid(); ++mfi) 
+    {
+        if (tag_region[mfi.LocalIndex()] == 1) 
+        {
+            // If active, fill the entire box with 1.0 (on the GPU)
+            stage.getTagRegion()[mfi].setVal<RunOn::Device>(1.0); 
+        } 
+        else 
+        {
+            // If inactive, fill the entire box with 0.0 (on the GPU)
+            stage.getTagRegion()[mfi].setVal<RunOn::Device>(0.0); 
+        }
+    }
+
     state_n = stage;
+
+    amrex::Real max_tag = state_n.getTagRegion().max(0);
+    amrex::Print() << "SANITY CHECK: Max tag in state_n is: " << max_tag << "\n";
 }
