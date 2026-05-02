@@ -53,7 +53,7 @@ void ProjectionWorkspace::computeConvectiveFluxes(const FlowField& state, amrex:
 
             amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE (int i, int j, int k)
             {
-                rhs(i,j,k) = morinishiUFlux<idim>(i, j, k, vel_arr, pres_arr, dx, Re);
+                rhs(i,j,k) = morinishiFlux<idim>(i, j, k, vel_arr, pres_arr, dx, Re);
             });
         }
     }

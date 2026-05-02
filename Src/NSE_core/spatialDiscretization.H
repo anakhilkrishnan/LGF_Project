@@ -11,7 +11,7 @@ using namespace amrex;
 // PENDING: Morinishi spatial discretization is expected here
 template <int dim>
 AMREX_GPU_DEVICE AMREX_FORCE_INLINE
-amrex::Real morinishiUFlux(int i, int j, int k,
+amrex::Real morinishiFlux(int i, int j, int k,
                             amrex::GpuArray<amrex::Array4<amrex::Real const>, AMREX_SPACEDIM> vel_arr,
                             amrex::Array4<amrex::Real const> const& p,
                             amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> const& dx,
@@ -57,12 +57,12 @@ amrex::Real morinishiUFlux(int i, int j, int k,
                                     viscterm = d2udx2;
 
                                     #if AMREX_SPACEDIM >= 2
-                                        d2udy2 = (u(i,j+1,k) - 2.0*u(i,j,k) + u(i,j-1,k)) * idy2;
+                                        amrex::Real d2udy2 = (u(i,j+1,k) - 2.0*u(i,j,k) + u(i,j-1,k)) * idy2;
                                         viscterm += d2udy2;
                                     #endif
 
                                     #if AMREX_SPACEDIM == 3
-                                        d2udz2 = (u(i,j,k+1) - 2.0*u(i,j,k) + u(i,j,k-1)) * idz2;
+                                        amrex::Real d2udz2 = (u(i,j,k+1) - 2.0*u(i,j,k) + u(i,j,k-1)) * idz2;
                                         viscterm += d2udz2;
                                     #endif
 
@@ -85,20 +85,20 @@ amrex::Real morinishiUFlux(int i, int j, int k,
                                         amrex::Real u_S = 0.5 * (u(i,j,k) + u(i,j-1,k));
 
                                         amrex::Real v_N = 0.5 * (v(i,j+1,k) + v(i-1,j+1,k));
-                                        amrex::Real v_S = 0.5 * (u(i,j,k) + u(i-1,j,k));
+                                        amrex::Real v_S = 0.5 * (v(i,j,k) + v(i-1,j,k));
 
                                         amrex::Real conv_y = (u_N * v_N - u_S * v_S) * idy;
                                         convterm += conv_y;
                                     #endif
                                     
                                     #if AMREX_SPACEDIM == 3
-                                        amrex::Real u_F = 0.5 * (u(i,j,k+1) + u(i,j,k))
-                                        amrex::Real u_B = 0.5 * (u(i,j,k) + u(i,j,k-1))
+                                        amrex::Real u_F = 0.5 * (u(i,j,k+1) + u(i,j,k));
+                                        amrex::Real u_B = 0.5 * (u(i,j,k) + u(i,j,k-1));
 
                                         amrex::Real w_F = 0.5 * (w(i,j,k+1) + w(i-1,j,k+1));
                                         amrex::Real w_B = 0.5 * (w(i,j,k) + w(i-1,j,k));
 
-                                        amrex::Real conv_z = (u_T * w_T - u_B * w_B) * idz;
+                                        amrex::Real conv_z = (u_F * w_F - u_B * w_B) * idz;
                                         convterm += conv_z;
                                     #endif
                                 }
@@ -111,10 +111,8 @@ amrex::Real morinishiUFlux(int i, int j, int k,
                                     amrex::Real d2vdx2 = (v(i+1,j,k) - 2.0*v(i,j,k) + v(i-1,j,k)) * idx2;
                                     viscterm = d2vdx2;
 
-                                    #if AMREX_SPACEDIM >= 2
-                                        amrex::Real d2vdy2 = (v(i,j+1,k) - 2.0*v(i,j,k) + v(i,j-1,k)) * idy2;
-                                        viscterm += d2vdy2;
-                                    #endif
+                                    amrex::Real d2vdy2 = (v(i,j+1,k) - 2.0*v(i,j,k) + v(i,j-1,k)) * idy2;
+                                    viscterm += d2vdy2;
 
                                     #if AMREX_SPACEDIM == 3
                                         amrex::Real d2vdz2 = (v(i,j,k+1) - 2.0*v(i,j,k) + v(i,j,k-1)) * idz2;
@@ -129,35 +127,33 @@ amrex::Real morinishiUFlux(int i, int j, int k,
                                     // N/S -> +- y-direction
                                     // E/W -> +- x-direction
 
-                                    amrex::Real u_E = 0.5 * (u(i+1,j,k) + u(i,j,k));
-                                    amrex::Real u_W = 0.5 * (u(i,j,k) + u(i-1,j,k));
+                                    amrex::Real u_E = 0.5 * (u(i+1,j,k) + u(i+1,j-1,k));
+                                    amrex::Real u_W = 0.5 * (u(i,j,k) + u(i,j-1,k));
                                     
-                                    amrex::Real conv_x = (u_E * u_E - u_W * u_W) * idx;
+                                    amrex::Real v_E = 0.5 * (v(i+1,j,k) + v(i,j,k));
+                                    amrex::Real v_W = 0.5 * (v(i,j,k) + v(i-1,j,k));
+
+                                    amrex::Real conv_x = (u_E * v_E - u_W * v_W) * idx;
                                     convterm = conv_x;
 
-                                    #if AMREX_SPACEDIM >= 2
-                                        amrex::Real u_N = 0.5 * (u(i,j+1,k) + u(i,j,k));
-                                        amrex::Real u_S = 0.5 * (u(i,j,k) + u(i,j-1,k));
+                                    amrex::Real v_N = 0.5 * (v(i,j+1,k) + v(i,j,k));
+                                    amrex::Real v_S = 0.5 * (v(i,j,k) + v(i,j-1,k));
 
-                                        amrex::Real v_N = 0.5 * (v(i,j+1,k) + v(i-1,j+1,k));
-                                        amrex::Real v_S = 0.5 * (u(i,j,k) + u(i-1,j,k));
-
-                                        amrex::Real conv_y = (u_N * v_N - u_S * v_S) * idy;
-                                        convterm += conv_y;
-                                    #endif
+                                    amrex::Real conv_y = (v_N * v_N - v_S * v_S) * idy;
+                                    convterm += conv_y;
                                     
                                     #if AMREX_SPACEDIM == 3
-                                        amrex::Real u_F = 0.5 * (u(i,j,k+1) + u(i,j,k))
-                                        amrex::Real u_B = 0.5 * (u(i,j,k) + u(i,j,k-1))
+                                        amrex::Real w_F = 0.5 * (w(i,j,k+1) + w(i,j-1,k+1));
+                                        amrex::Real w_B = 0.5 * (w(i,j,k) + w(i,j-1,k));
 
-                                        amrex::Real w_F = 0.5 * (w(i,j,k+1) + w(i-1,j,k+1));
-                                        amrex::Real w_B = 0.5 * (w(i,j,k) + w(i-1,j,k));
+                                        amrex::Real v_F = 0.5 * (v(i,j,k+1) + v(i,j,k));
+                                        amrex::Real v_B = 0.5 * (v(i,j,k) + v(i,j,k-1));
 
-                                        amrex::Real conv_z = (u_T * w_T - u_B * w_B) * idz;
+                                        amrex::Real conv_z = (v_F * w_F - v_B * w_B) * idz;
                                         convterm += conv_z;
                                     #endif
                                 }
-                                elseif constexpr (dim == 2)
+                                else if constexpr (dim == 2)
                                 {
                                     // computing the pressure term
                                     presterm = idz * (p(i,j,k) - p(i,j,k-1));
@@ -166,15 +162,11 @@ amrex::Real morinishiUFlux(int i, int j, int k,
                                     amrex::Real d2wdx2 = (w(i+1,j,k) - 2.0*w(i,j,k) + w(i-1,j,k)) * idx2;
                                     viscterm = d2wdx2;
 
-                                    #if AMREX_SPACEDIM >= 2
-                                        amrex::Real d2wdy2 = (w(i,j+1,k) - 2.0*w(i,j,k) + w(i,j-1,k)) * idy2;
-                                        viscterm += d2wdy2;
-                                    #endif
+                                    amrex::Real d2wdy2 = (w(i,j+1,k) - 2.0*w(i,j,k) + w(i,j-1,k)) * idy2;
+                                    viscterm += d2wdy2;
 
-                                    #if AMREX_SPACEDIM == 3
-                                        amrex::Real d2wdz2 = (w(i,j,k+1) - 2.0*w(i,j,k) + w(i,j,k-1)) * idz2;
-                                        viscterm += d2wdz2;
-                                    #endif
+                                    amrex::Real d2wdz2 = (w(i,j,k+1) - 2.0*w(i,j,k) + w(i,j,k-1)) * idz2;
+                                    viscterm += d2wdz2;
 
                                     viscterm *= Re_inv;
 
@@ -184,33 +176,29 @@ amrex::Real morinishiUFlux(int i, int j, int k,
                                     // N/S -> +- y-direction
                                     // E/W -> +- x-direction
 
-                                    amrex::Real u_E = 0.5 * (u(i+1,j,k) + u(i,j,k));
-                                    amrex::Real u_W = 0.5 * (u(i,j,k) + u(i-1,j,k));
-                                    
-                                    amrex::Real conv_x = (u_E * u_E - u_W * u_W) * idx;
+                                    amrex::Real w_E = 0.5 * (w(i+1,j,k) + w(i,j,k));
+                                    amrex::Real w_W = 0.5 * (w(i,j,k) + w(i-1,j,k));
+
+                                    amrex::Real u_E = 0.5 * (u(i+1,j,k) + u(i+1,j,k-1));
+                                    amrex::Real u_W = 0.5 * (u(i,j,k) + u(i,j,k-1));
+
+                                    amrex::Real conv_x = (w_E * u_E - w_W * u_W) * idx;
                                     convterm = conv_x;
 
-                                    #if AMREX_SPACEDIM >= 2
-                                        amrex::Real u_N = 0.5 * (u(i,j+1,k) + u(i,j,k));
-                                        amrex::Real u_S = 0.5 * (u(i,j,k) + u(i,j-1,k));
+                                    amrex::Real w_N = 0.5 * (w(i,j+1,k) + w(i,j,k));
+                                    amrex::Real w_S = 0.5 * (w(i,j,k) + w(i,j-1,k));
 
-                                        amrex::Real v_N = 0.5 * (v(i,j+1,k) + v(i-1,j+1,k));
-                                        amrex::Real v_S = 0.5 * (u(i,j,k) + u(i-1,j,k));
+                                    amrex::Real v_N = 0.5 * (v(i,j+1,k) + v(i,j+1,k-1));
+                                    amrex::Real v_S = 0.5 * (v(i,j,k) + v(i,j,k-1));
 
-                                        amrex::Real conv_y = (u_N * v_N - u_S * v_S) * idy;
-                                        convterm += conv_y;
-                                    #endif
+                                    amrex::Real conv_y = (w_N * v_N - w_S * v_S) * idy;
+                                    convterm += conv_y;
                                     
-                                    #if AMREX_SPACEDIM == 3
-                                        amrex::Real u_F = 0.5 * (u(i,j,k+1) + u(i,j,k))
-                                        amrex::Real u_B = 0.5 * (u(i,j,k) + u(i,j,k-1))
+                                    amrex::Real w_F = 0.5 * (w(i,j,k+1) + w(i,j,k));
+                                    amrex::Real w_B = 0.5 * (w(i,j,k) + w(i,j,k-1));
 
-                                        amrex::Real w_F = 0.5 * (w(i,j,k+1) + w(i-1,j,k+1));
-                                        amrex::Real w_B = 0.5 * (w(i,j,k) + w(i-1,j,k));
-
-                                        amrex::Real conv_z = (u_T * w_T - u_B * w_B) * idz;
-                                        convterm += conv_z;
-                                    #endif
+                                    amrex::Real conv_z = (w_F * w_F - w_B * w_B) * idz;
+                                    convterm += conv_z;
                                 }
 
                                 return (viscterm - presterm - convterm);
