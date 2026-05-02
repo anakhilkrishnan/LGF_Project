@@ -123,6 +123,46 @@ void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, 
     amrex::Print() << "Plotfile written to: " << plotfile_name << "\n";
 }
 
+amrex::Real computeDt(const FlowField& state, amrex::Real cfl, amrex::Real Re)
+{
+    const amrex::Geometry& geom = state.getGeom();
+    amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> dx = geom.CellSizeArray();
+
+    // cfl constraint: advective limit on dt
+    amrex::Real u_max = state.getVel(0).norm0(0, 0, false);
+    amrex::Real adv_metric = u_max / dx[0];
+
+    #if AMREX_SPACEDIM >= 2
+        amrex::Real v_max = state.getVel(1).norm0(0, 0, false);
+        adv_metric += v_max / dx[1];
+    #endif
+
+    #if AMREX_SPACEDIM == 3
+        amrex::Real w_max = state.getVel(2).norm0(0, 0, false);
+        adv_metric += w_max / dx[2];
+    #endif
+
+    // dt_adv = CFL / ( |u|/dx + |v|/dy + |w|/dz )
+    amrex::Real dt_adv = cfl / (adv_metric + 1.0e-12); // epsilon to prevent div-by-zero
+
+    // diffusive limit on dt
+    amrex::Real diff_metric = 1.0 / (dx[0] * dx[0]);
+    
+    #if AMREX_SPACEDIM >= 2
+        diff_metric += 1.0 / (dx[1] * dx[1]);
+    #endif
+
+    #if AMREX_SPACEDIM == 3
+        diff_metric += 1.0 / (dx[2] * dx[2]);
+    #endif
+
+    // for explicit schemes, Fourier number <= 0.5
+    // dt_diff <= 0.5 * Re / ( 1/dx^2 + 1/dy^2 + 1/dz^2 )
+    amrex::Real dt_diff = 0.5 * Re / diff_metric;
+
+    return amrex::min(dt_adv, dt_diff);
+}
+
 void extendedMain()
 {
     BL_PROFILE("extendedMain()");
@@ -208,7 +248,7 @@ void extendedMain()
         auto step_start_time = amrex::second();
         
         // PENDING: write a function to dynamically compute dt and satisfy CFL criterion
-        dt = 0.0001;
+        dt = computeDt(state_n, cfl, Re);
 
         // advance time using RK for time, KEP Morinishi for space and LGF for pressure poisson
         workspace.advanceTimeStep(state_n, dt, Re, rk_order, source_tag_thresh);
