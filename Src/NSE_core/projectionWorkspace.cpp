@@ -123,6 +123,9 @@ void ProjectionWorkspace::computePressure(FlowField& stage, amrex::Real source_t
     // running the tagging algorithmn and obtaining the box tags as an array of 0s and 1s
     amrex::Vector<int> box_tag_arr = tagSource(stage.getDivU(), source_tag_thresh);
     
+    // write out divU_max_norm
+    divU_max_norm = stage.getDivU().norm0(0, 0, false);
+
     // performing addition of box values
     addEverySourceBox(stage.getDivU(), corr_pres, geom, box_tag_arr);
 }

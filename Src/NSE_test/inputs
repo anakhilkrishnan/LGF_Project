@@ -4,18 +4,18 @@ n_cell = 128
 max_grid_size = 128
 domain_lo = -1.0 -1.0 -1.0
 domain_hi = 1.0 1.0 1.0
-n_ghost = 2
+n_ghost = 1
 n_comp = 1
 
-tagging_threshold = 1.0e-8
-Re = 100
+tagging_threshold = 0.0
+Re = 30000
 
 t_start = 0.0
 t_stop = 10.0
-cfl = 0.5
+cfl = 0.1
 rk_order = 1
 max_steps = 100
 
 write_plot = true
-plot_int = 10
+plot_int = 5
 plot_prefix = "./Results/plttaggpu"

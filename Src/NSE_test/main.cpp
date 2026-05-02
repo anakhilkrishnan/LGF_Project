@@ -247,9 +247,9 @@ void extendedMain()
     {
         auto step_start_time = amrex::second();
         
-        // PENDING: write a function to dynamically compute dt and satisfy CFL criterion
+        //dt = 0.0001;
         dt = computeDt(state_n, cfl, Re);
-
+        
         // advance time using RK for time, KEP Morinishi for space and LGF for pressure poisson
         workspace.advanceTimeStep(state_n, dt, Re, rk_order, source_tag_thresh);
 

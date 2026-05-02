@@ -46,6 +46,11 @@ FlowField::FlowField(const FlowField& other)
 
     tagRegion.define(other.tagRegion.boxArray(), other.tagRegion.DistributionMap(), other.tagRegion.nComp(), other.tagRegion.nGrow());
     amrex::MultiFab::Copy(tagRegion, other.tagRegion, 0, 0, 1, tagRegion.nGrow());
+
+    divU.define(other.divU.boxArray(), other.divU.DistributionMap(), other.divU.nComp(), other.divU.nGrow());
+    amrex::MultiFab::Copy(divU, other.divU, 0, 0, 1, divU.nGrow());
+    
+    globalgeom = other.globalgeom;
 }
 
 FlowField& FlowField::operator=(const FlowField& other) 
@@ -57,6 +62,8 @@ FlowField& FlowField::operator=(const FlowField& other)
         
         amrex::MultiFab::Copy(pres, other.pres, 0, 0, 1, pres.nGrow());
         amrex::MultiFab::Copy(tagRegion, other.tagRegion, 0, 0, 1, tagRegion.nGrow());
+        amrex::MultiFab::Copy(divU, other.divU, 0, 0, 1, divU.nGrow());
+        globalgeom = other.globalgeom;
     }
     return *this;
 }
