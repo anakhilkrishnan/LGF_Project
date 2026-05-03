@@ -95,6 +95,8 @@ void extendedMain()
     // performing addition of box values
     addEverySourceBox(sourceMF, targetMF, geom, box_tag_arr);
 
+    targetMF.fillBoundary(geom.periodicity());
+
     // marking end time and elapsed time
     auto compute_end_time = amrex::second();
     auto compute_time = compute_end_time - compute_start_time;
