@@ -229,6 +229,7 @@ void extendedMain()
 
     initializeFlowField(state_n);
 
+    state_n.setBoundary(geom);
     // PENDING: employ boundary conditions somewhere here
     
     // performing time stepping
