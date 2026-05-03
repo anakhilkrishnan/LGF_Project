@@ -1,0 +1,24 @@
+Initializing AMReX (26.05-2-gff4721186f24)...
+MPI initialized with 1 MPI processes
+MPI initialized with thread support level 0
+Initializing CUDA...
+CUDA initialized with 1 device.
+AMReX (26.05-2-gff4721186f24) initialized
+This is the start of my first NSE solver.
+Writing plotfile to: ./Results/plttaggpu00000
+Plotfile written to: ./Results/plttaggpu00000
+Writing plotfile to: ./Results/plttaggpu00001
+Plotfile written to: ./Results/plttaggpu00001
+Step: 1 | Time: 0.0004107292918 | dt: 0.0004107292918 | WallTime: 1.404825621s | divU_max: 9.448835654
+Writing plotfile to: ./Results/plttaggpu00002
+Plotfile written to: ./Results/plttaggpu00002
+Step: 2 | Time: 0.0008174535371 | dt: 0.0004067242453 | WallTime: 5.655105295s | divU_max: 121.678961
+Writing plotfile to: ./Results/plttaggpu00003
+Plotfile written to: ./Results/plttaggpu00003
+Step: 3 | Time: 0.0008440931718 | dt: 2.663963467e-05 | WallTime: 8.053128331s | divU_max: 4762.474174
+Writing plotfile to: ./Results/plttaggpu00004
+Plotfile written to: ./Results/plttaggpu00004
+Step: 4 | Time: 0.0008449088994 | dt: 8.157276348e-07 | WallTime: 8.576169671s | divU_max: 170008.2411
+Writing plotfile to: ./Results/plttaggpu00005
+Plotfile written to: ./Results/plttaggpu00005
+Step: 5 | Time: 0.0008449230235 | dt: 1.412404303e-08 | WallTime: 8.527574932s | divU_max: 9012789.448

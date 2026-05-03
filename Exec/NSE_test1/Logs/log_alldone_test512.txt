@@ -1,0 +1,119 @@
+Initializing AMReX (26.05-3-g4ceb814db7d7)...
+MPI initialized with 1 MPI processes
+MPI initialized with thread support level 0
+Initializing CUDA...
+CUDA initialized with 1 device.
+AMReX (26.05-3-g4ceb814db7d7) initialized
+This is the start of my first NSE solver.
+Writing plotfile to: ./Results/plttaggpu00000
+Plotfile written to: ./Results/plttaggpu00000
+Writing plotfile to: ./Results/plttaggpu00001
+Plotfile written to: ./Results/plttaggpu00001
+Step: 1 | Time: 0.0001965951853 | dt: 0.0001965951853 | WallTime: 6.152005803s | divU_max: 13.77295521
+Writing plotfile to: ./Results/plttaggpu00002
+Plotfile written to: ./Results/plttaggpu00002
+Step: 2 | Time: 0.0003928333253 | dt: 0.00019623814 | WallTime: 50.47143781s | divU_max: 10.00054608
+Writing plotfile to: ./Results/plttaggpu00003
+Plotfile written to: ./Results/plttaggpu00003
+Step: 3 | Time: 0.0005891467017 | dt: 0.0001963133764 | WallTime: 27.91908404s | divU_max: 0.01430985387
+Writing plotfile to: ./Results/plttaggpu00004
+Plotfile written to: ./Results/plttaggpu00004
+Step: 4 | Time: 0.0007855213711 | dt: 0.0001963746694 | WallTime: 19.13649563s | divU_max: 0.01467424522
+Writing plotfile to: ./Results/plttaggpu00005
+Plotfile written to: ./Results/plttaggpu00005
+Step: 5 | Time: 0.000981965435 | dt: 0.0001964440638 | WallTime: 20.33458079s | divU_max: 0.01503874792
+Writing plotfile to: ./Results/plttaggpu00006
+Plotfile written to: ./Results/plttaggpu00006
+Step: 6 | Time: 0.001178486989 | dt: 0.0001965215543 | WallTime: 15.36821442s | divU_max: 0.0154057757
+Writing plotfile to: ./Results/plttaggpu00007
+Plotfile written to: ./Results/plttaggpu00007
+Step: 7 | Time: 0.001375094126 | dt: 0.000196607137 | WallTime: 20.14651758s | divU_max: 0.0161135877
+Writing plotfile to: ./Results/plttaggpu00008
+Plotfile written to: ./Results/plttaggpu00008
+Step: 8 | Time: 0.001571794928 | dt: 0.0001967008021 | WallTime: 19.74484866s | divU_max: 0.016983634
+Writing plotfile to: ./Results/plttaggpu00009
+Plotfile written to: ./Results/plttaggpu00009
+Step: 9 | Time: 0.001768597461 | dt: 0.0001968025331 | WallTime: 21.40231387s | divU_max: 0.01784389905
+Writing plotfile to: ./Results/plttaggpu00010
+Plotfile written to: ./Results/plttaggpu00010
+Step: 10 | Time: 0.001965509769 | dt: 0.0001969123075 | WallTime: 20.60484823s | divU_max: 0.01869319326
+Max compute time (Slowest Rank): 221.318307 s
+Min compute time (Fastest Rank): 221.318307 s
+Time spread (Load Imbalance)   : 0 s
+
+
+TinyProfiler total time across processes [min...avg...max]: 221.3 ... 221.3 ... 221.3
+
+-------------------------------------------------------------------------------------------------------
+Name                                                    NCalls  Excl. Min  Excl. Avg  Excl. Max   Max %
+-------------------------------------------------------------------------------------------------------
+<Compute> addEverySourceBox()                               10      220.9      220.9      220.9  99.80%
+<Compute> advanceTimeStep()                                 10    0.00768    0.00768    0.00768   0.00%
+<Compute> advanceTimeStep(): computePressure()              10   0.003603   0.003603   0.003603   0.00%
+extendedMain()                                               1  0.0009221  0.0009221  0.0009221   0.00%
+Other                                                      739     0.4235     0.4235     0.4235   0.19%
+-------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------
+Name                                                    NCalls  Incl. Min  Incl. Avg  Incl. Max   Max %
+-------------------------------------------------------------------------------------------------------
+extendedMain()                                               1      221.3      221.3      221.3 100.00%
+<Compute> advanceTimeStep()                                 10        221        221        221  99.84%
+<Compute> advanceTimeStep(): computePressure()              10      220.9      220.9      220.9  99.81%
+<Compute> addEverySourceBox()                               10      220.9      220.9      220.9  99.81%
+Other                                                      739      1.109      1.109      1.109   0.50%
+-------------------------------------------------------------------------------------------------------
+
+Device Memory Usage:
+----------------------------------------------------------
+Name                            Nalloc    AvgMem    MaxMem
+----------------------------------------------------------
+The_Arena::Initialize()              1    20   B  2833 MiB
+extendedMain()                    2816    25 MiB    25 MiB
+<IO> Initial Plot()                258    12 KiB    14 MiB
+<IO> Interval Plot()              2570    20 KiB    14 MiB
+<Compute> advanceTimeStep()      15360    13 MiB    14 MiB
+ResizeRandomSeed                     1  4607 KiB  4608 KiB
+computeCellCenteredVorticity()    2816    41   B  2048 KiB
+FillBoundary_nowait()               31  1239 KiB  1251 KiB
+<Compute> addEverySourceBox()       20   432 KiB   795 KiB
+FabArray::setVal()                  14   381 KiB   382 KiB
+amrex::Copy()                       71   191 KiB   192 KiB
+VisMF::Write(FabArray)           19712    52   B    48 KiB
+FabArray::norminf()                 32    19 KiB    44 KiB
+PhysBCFunct::()                   2560     0   B    11 KiB
+<Communicate> tagSource()           10     0   B  1280   B
+----------------------------------------------------------
+
+Managed Memory Usage:
+---------------------------------------------------------
+Name                             Nalloc  AvgMem    MaxMem
+---------------------------------------------------------
+The_Managed_Arena::Initialize()       1   0   B  8192 KiB
+---------------------------------------------------------
+
+Pinned Memory Usage:
+---------------------------------------------------------------
+Name                                 Nalloc    AvgMem    MaxMem
+---------------------------------------------------------------
+The_Pinned_Arena::Initialize()            1     0   B  8192 KiB
+<Communicate> consolidateMultiFab()    2560    81   B  2368 KiB
+FillBoundary_nowait()                    31  1239 KiB  1251 KiB
+FabArray::setVal()                       14   381 KiB   382 KiB
+amrex::Copy()                            71   191 KiB   192 KiB
+VisMF::Write(FabArray)                22528    15   B    56 KiB
+<IO> Initial Plot()                       2     9 KiB    42 KiB
+<IO> Interval Plot()                     10    46   B    32 KiB
+FabArray::norminf()                      32    19 KiB    20 KiB
+PhysBCFunct::()                        2560     0   B    11 KiB
+---------------------------------------------------------------
+
+Total GPU global memory (MB) spread across MPI: [3778 ... 3778]
+Free  GPU global memory (MB) spread across MPI: [817 ... 817]
+[The         Arena] max space (MB) allocated spread across MPI: [2833 ... 2833]
+[The         Arena] max space (MB) used      spread across MPI: [47 ... 47]
+[The Managed Arena] max space (MB) allocated spread across MPI: [8 ... 8]
+[The Managed Arena] max space (MB) used      spread across MPI: [0 ... 0]
+[The  Pinned Arena] max space (MB) allocated spread across MPI: [8 ... 8]
+[The  Pinned Arena] max space (MB) used      spread across MPI: [4 ... 4]
+AMReX (26.05-3-g4ceb814db7d7) finalized

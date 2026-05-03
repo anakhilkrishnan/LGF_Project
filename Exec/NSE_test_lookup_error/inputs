@@ -1,6 +1,6 @@
 amrex.max_gpu_streams = 4
 
-n_cell = 512
+n_cell = 256
 max_grid_size = 32
 domain_lo = -1.0 -1.0 -1.0
 domain_hi = 1.0 1.0 1.0

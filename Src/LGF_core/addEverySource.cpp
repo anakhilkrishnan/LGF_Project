@@ -92,7 +92,7 @@ void addEverySourceBox(const amrex::MultiFab& source, amrex::MultiFab& target, c
                             
                             // compute the LGF kernel for the current source-target cell pair
                             amrex::Real lgf = computeLGF(AMREX_D_DECL(x_tar, y_tar, z_tar),
-                                                            AMREX_D_DECL(x_src, y_src, z_src));
+                                                            AMREX_D_DECL(x_src, y_src, z_src), block.dx[0]);
                                                             
                             
                             
