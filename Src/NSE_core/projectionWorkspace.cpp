@@ -91,8 +91,6 @@ void ProjectionWorkspace::predictVelocity(const FlowField& state_n, FlowField& s
         amrex::Real dt_by_gam = dt / gamma;
         amrex::MultiFab::Saxpy(stage.getVel(idim), dt_by_gam, rhs_vel[idim], 0, 0, stage.getVel(idim).nComp(), 0);
     }
-
-    // PENDING: Update boundary conditions here!
 }
 
 void ProjectionWorkspace::computePressure(FlowField& stage, amrex::Real source_tag_thresh, amrex::Vector<int>& box_tag_arr)
@@ -103,7 +101,7 @@ void ProjectionWorkspace::computePressure(FlowField& stage, amrex::Real source_t
     const amrex::Geometry& geom = stage.getGeom();
     amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> dx = geom.CellSizeArray();
 
-    // compute divU and store within workspace
+    // compute divU and store in stage
     for(amrex::MFIter mfi(stage.getDivU(), amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi)
     {
         const amrex::Box& bx = mfi.tilebox();
@@ -128,6 +126,8 @@ void ProjectionWorkspace::computePressure(FlowField& stage, amrex::Real source_t
 
     // performing addition of box values
     addEverySourceBox(stage.getDivU(), corr_pres, geom, box_tag_arr);
+
+    corr_pres.FillBoundary(geom.periodicity());
 }
 
 void ProjectionWorkspace::computeVelocityCorrection(FlowField& stage)
@@ -185,7 +185,28 @@ void ProjectionWorkspace::correctVelocityandPressure(FlowField& stage, amrex::Re
 
     // updating pressure to reflect base state + corrected
     amrex::Real gam_by_dt = gamma/dt;
-    amrex::MultiFab::Saxpy(stage.getPres(), gam_by_dt, corr_pres, 0, 0, stage.getPres().nComp(), 0);
+    amrex::MultiFab::Saxpy(stage.getPres(), gam_by_dt, corr_pres, 0, 0, stage.getPres().nComp(), stage.getPres().nGrow());
+
+    // additional checker for divergence at end of step
+    // extracting physical dx for computations
+    const amrex::Geometry& geom = stage.getGeom();
+    amrex::GpuArray<amrex::Real, AMREX_SPACEDIM> dx = geom.CellSizeArray();
+
+    // compute divU_at_end
+    for(amrex::MFIter mfi(stage.getDivUAtEnd(), amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi)
+    {
+        const amrex::Box& bx = mfi.tilebox();
+        auto const& divU_at_end_arr = stage.getDivUAtEnd().array(mfi);
+        amrex::GpuArray<amrex::Array4<amrex::Real const>, AMREX_SPACEDIM> vel_arr;
+        for (int d = 0; d < AMREX_SPACEDIM; ++d) 
+        {
+            vel_arr[d] = stage.getVel(d).const_array(mfi);
+        }
+        amrex::ParallelFor(bx, [=] AMREX_GPU_DEVICE (int i, int j, int k)
+        {
+            divU_at_end_arr(i,j,k) = discreteDivergence(i, j, k, dx, vel_arr);
+        });
+    }
 }
 
 void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, amrex::Real Re, int rk_order, amrex::Real source_tag_thresh)
@@ -212,8 +233,8 @@ void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, am
 
         // compute predicted velocity without divergence free condition
         // store predicted velocity within stage
-        // update BCs here
         predictVelocity(state_n, stage, dt, alpha, beta, gamma);
+        stage.setBoundary(geom);
 
         // find divergence of predicted velocity, store in workspace
         // use custom LGF solver to find pressure correction delta
@@ -226,9 +247,10 @@ void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, am
 
         // correct stage using correction from workspace
         correctVelocityandPressure(stage, gamma, dt);
-
+        stage.setBoundary(geom);
     }
 
+    // export divergence at the end of each time step for confidence
     for (MFIter mfi(stage.getTagRegion()); mfi.isValid(); ++mfi) 
     {
         if (tag_region[mfi.LocalIndex()] == 1) 
@@ -244,7 +266,4 @@ void ProjectionWorkspace::advanceTimeStep(FlowField& state_n, amrex::Real dt, am
     }
 
     state_n = stage;
-
-    amrex::Real max_tag = state_n.getTagRegion().max(0);
-    amrex::Print() << "SANITY CHECK: Max tag in state_n is: " << max_tag << "\n";
 }

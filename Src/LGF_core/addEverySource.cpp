@@ -36,15 +36,27 @@ void addEverySourceBox(const amrex::MultiFab& source, amrex::MultiFab& target, c
     int num_blocks = consolSource.metadata.size();
     const Real* data_ptr = d_data.data();
     const FabMetaData* meta_ptr = d_meta.data();
+
+    amrex::Box dom = geom.Domain();
     
     // Loop over target boxes in a separate MFIter
     for (amrex::MFIter mfi(target, amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi)
     {
-        const amrex::Box& targetbox = mfi.validbox();
+        const amrex::Box& targetbox = mfi.growntilebox(target.nGrow());
+        const amrex::Box& valid_box = mfi.validbox();
         const Array4<Real>& phi = target.array(mfi);
 
         amrex::ParallelFor(targetbox, [=] AMREX_GPU_DEVICE (int i, int j, int k)
         {   
+            amrex::IntVect cell(AMREX_D_DECL(i,j,k));
+            
+            if (!valid_box.contains(cell))
+            {
+                if (dom.contains(cell))
+                {
+                    return;
+                }
+            }
             // extract physical coordinates of target cell
             amrex::Real AMREX_D_DECL(x_tar = prob_lo[0] + (i + 0.5) * dx[0],
                                       y_tar = prob_lo[1] + (j + 0.5) * dx[1],

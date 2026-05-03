@@ -1,5 +1,15 @@
 #include <FlowField.H>
 
+struct DummyFillExtDir
+{
+    AMREX_GPU_DEVICE
+    void operator() (const amrex::IntVect& /*iv*/, amrex::Array4<amrex::Real> const& /*dest*/,
+                     const int /*dcomp*/, const int /*numcomp*/,
+                     amrex::GeometryData const& /*geom*/, const amrex::Real /*time*/,
+                     const amrex::BCRec* /*bcr*/, const int /*bcomp*/,
+                     const int /*orig_comp*/) const {}
+};
+
 FlowField::FlowField(const amrex::Geometry& geom, const amrex::BoxArray& ba, const amrex::DistributionMapping& dm, const int n_comp, const int n_ghost)
 {
     for (int idim = 0; idim < AMREX_SPACEDIM; ++idim)
@@ -26,6 +36,9 @@ FlowField::FlowField(const amrex::Geometry& geom, const amrex::BoxArray& ba, con
     divU.define(ba, dm, n_comp, n_ghost);
     divU.setVal(0.0);
 
+    divU_at_end.define(ba, dm, n_comp, n_ghost);
+    divU_at_end.setVal(0.0);
+
     globalgeom = geom;
 }
 
@@ -50,6 +63,9 @@ FlowField::FlowField(const FlowField& other)
     divU.define(other.divU.boxArray(), other.divU.DistributionMap(), other.divU.nComp(), other.divU.nGrow());
     amrex::MultiFab::Copy(divU, other.divU, 0, 0, 1, divU.nGrow());
     
+    divU_at_end.define(other.divU_at_end.boxArray(), other.divU_at_end.DistributionMap(), other.divU_at_end.nComp(), other.divU_at_end.nGrow());
+    amrex::MultiFab::Copy(divU_at_end, other.divU_at_end, 0, 0, 1, divU_at_end.nGrow());
+
     globalgeom = other.globalgeom;
 }
 
@@ -63,6 +79,7 @@ FlowField& FlowField::operator=(const FlowField& other)
         amrex::MultiFab::Copy(pres, other.pres, 0, 0, 1, pres.nGrow());
         amrex::MultiFab::Copy(tagRegion, other.tagRegion, 0, 0, 1, tagRegion.nGrow());
         amrex::MultiFab::Copy(divU, other.divU, 0, 0, 1, divU.nGrow());
+        amrex::MultiFab::Copy(divU_at_end, other.divU_at_end, 0, 0, 1, divU_at_end.nGrow());
         globalgeom = other.globalgeom;
     }
     return *this;
@@ -108,6 +125,16 @@ const amrex::MultiFab& FlowField::getDivU() const
     return divU; 
 }
 
+amrex::MultiFab& FlowField::getDivUAtEnd() 
+{
+    return divU_at_end; 
+}
+
+const amrex::MultiFab& FlowField::getDivUAtEnd() const 
+{
+    return divU_at_end; 
+}
+
 const amrex::Geometry& FlowField::getGeom() const 
 {
     return globalgeom; 
@@ -115,11 +142,30 @@ const amrex::Geometry& FlowField::getGeom() const
 
 void FlowField::setBoundary(const amrex::Geometry& geom)
 {
+    // initializing BCRec object 1 dimension at a time
+    amrex::Vector<amrex::BCRec> bc(1);
+    for (int idim = 0; idim < AMREX_SPACEDIM; ++idim) 
+    {
+        bc[0].setLo(idim, amrex::BCType::foextrap);
+        bc[0].setHi(idim, amrex::BCType::foextrap);
+    }
+    
+    amrex::GpuBndryFuncFab<DummyFillExtDir> bndry_func(DummyFillExtDir{});
+    amrex::PhysBCFunct<decltype(bndry_func)> physbc(geom, bc, bndry_func);
+
+    // update velocity fields
     for (int idim = 0; idim < AMREX_SPACEDIM; ++idim)
     {
+        // update ghost cells
         vel[idim].FillBoundary(geom.periodicity());
+        
+        // update physical domain BCs
+        physbc(vel[idim], 0, 1, vel[idim].nGrowVect(), 0.0, 0);
     }
 
+    // update pressure fields
     pres.FillBoundary(geom.periodicity());
 }
+
+    
 

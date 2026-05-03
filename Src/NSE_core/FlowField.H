@@ -4,6 +4,7 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_Geometry.H>
 #include <AMReX_BCRec.H>
+#include <AMReX_PhysBCFunct.H>
 #include <AMReX_Math.H>
 #include <AMReX_Array.H>
 
@@ -15,6 +16,7 @@ class FlowField
         amrex::Array<amrex::MultiFab, AMREX_SPACEDIM> vel;
         amrex::MultiFab pres;
         amrex::MultiFab divU;
+        amrex::MultiFab divU_at_end;
         amrex::MultiFab tagRegion;
         amrex::Geometry globalgeom;
 
@@ -32,6 +34,8 @@ class FlowField
         const amrex::MultiFab& getTagRegion() const;
         amrex::MultiFab& getDivU();
         const amrex::MultiFab& getDivU() const;
+        amrex::MultiFab& getDivUAtEnd();
+        const amrex::MultiFab& getDivUAtEnd() const;
         const amrex::Geometry& getGeom() const;
 
         void setBoundary(const amrex::Geometry& geom);

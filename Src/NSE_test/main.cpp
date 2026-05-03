@@ -86,7 +86,7 @@ void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, 
 {
     // checking total components for plotfile
     int ncomp_vort = (AMREX_SPACEDIM == 2) ? 1 : 3;
-    int ncomp_plot = AMREX_SPACEDIM + ncomp_vort + 3 ;
+    int ncomp_plot = AMREX_SPACEDIM + ncomp_vort + 4 ;
 
     // building a multiFab with n dim + 2 components for plotting
    amrex::MultiFab plotFab(ba, dm, ncomp_plot, 0);
@@ -103,11 +103,12 @@ void writeStaggeredPlotFile(int step, amrex::Real time, const FlowField& state, 
     amrex::MultiFab::Copy(plotFab, state.getPres(), 0, AMREX_SPACEDIM, 1, 0); 
     amrex::MultiFab::Copy(plotFab, state.getTagRegion(), 0, AMREX_SPACEDIM + 1, 1, 0);
     amrex::MultiFab::Copy(plotFab, state.getDivU(), 0, AMREX_SPACEDIM + 2, 1, 0);
-    amrex::MultiFab::Copy(plotFab, computeCellCenteredVorticity(state), 0, AMREX_SPACEDIM + 3, ncomp_vort, 0);
+    amrex::MultiFab::Copy(plotFab, state.getDivUAtEnd(), 0, AMREX_SPACEDIM + 3, 1, 0);
+    amrex::MultiFab::Copy(plotFab, computeCellCenteredVorticity(state), 0, AMREX_SPACEDIM + 4, ncomp_vort, 0);
 
 
     // exporting the names of the MultiFabs
-    amrex::Vector<std::string> varnames = {AMREX_D_DECL("x_velocity", "y_velocity", "z_velocity"), "pressure", "active_box_tag", "divU"};
+    amrex::Vector<std::string> varnames = {AMREX_D_DECL("x_velocity", "y_velocity", "z_velocity"), "pressure", "active_box_tag", "divU", "divUAtEnd"};
     #if AMREX_SPACEDIM == 2
         varnames.push_back("z_vorticity");
     #elif AMREX_SPACEDIM == 3

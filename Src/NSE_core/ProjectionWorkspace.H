@@ -4,6 +4,7 @@
 #include <AMReX_Geometry.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_BCRec.H>
+#include <AMReX_PhysBCFunct.H>
 #include <AMReX_Math.H>
 #include <AMReX_Array.H>
 #include <AMReX_BLProfiler.H>
