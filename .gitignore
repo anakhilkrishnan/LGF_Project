@@ -21,6 +21,8 @@ lgfpoisson
 nserun
 *.o
 *.ex
+plt*
+post*
 
 Exec/build*/
 Exec/Build*/

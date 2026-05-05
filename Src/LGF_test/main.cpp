@@ -95,7 +95,8 @@ void extendedMain()
     // performing addition of box values
     addEverySourceBox(sourceMF, targetMF, geom, box_tag_arr);
 
-    targetMF.fillBoundary(geom.periodicity());
+    // this line is not needed because the code doesn't use the MF again at all, and the plot doesn't use ghost cells
+    // targetMF.FillBoundary(geom.periodicity());
 
     // marking end time and elapsed time
     auto compute_end_time = amrex::second();

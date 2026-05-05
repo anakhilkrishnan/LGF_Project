@@ -8,12 +8,12 @@ import re
 # ==========================================
 # User Defined Inputs (Matching ParmParse)
 # ==========================================
-n_cell = 512
+n_cell = 256
 dom_lo = -5.0
 dom_hi = 5.0
 gauss_cen_x = 0.0
 gauss_cen_y = 0.25
-variance = 1.0  # From SourceField.H
+variance = 0.5  # From SourceField.H
 descr = "taggpu"
 plotfile = "plt" + descr + "00" + str(n_cell)
 adaptiveGrid = True
