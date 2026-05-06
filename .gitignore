@@ -23,6 +23,7 @@ nserun
 *.ex
 plt*
 post*
+!**/postProcess.py
 
 Exec/build*/
 Exec/Build*/
@@ -30,15 +31,6 @@ Exec/nsebuild*/
 Exec/Nsebuild*/
 Exec/NSEbuild*/
 Exec/NSEBuild*/
-
-
-# AMReX Simulation Data & Results
-# Ignore all plotfiles and post-processing dumps across all solvers
-Exec/**/Results/plt*
-Exec/**/Results/post*
-
-# Exception: Explicitly track your Python analysis scripts
-!Exec/**/Results/postProcess.py
 
 # Deprecated / Backup
 Exec/pre_file_tree_upgrade_build
